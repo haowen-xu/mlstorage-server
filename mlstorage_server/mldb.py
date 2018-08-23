@@ -6,7 +6,8 @@ from bson import ObjectId
 from motor.motor_asyncio import AsyncIOMotorCollection
 from pymongo import IndexModel
 
-from mlstorage_server.schema import validate_experiment_doc, validate_experiment_id
+from mlstorage_server.schema import (validate_experiment_doc,
+                                     validate_experiment_id)
 
 __all__ = ['MLDB']
 

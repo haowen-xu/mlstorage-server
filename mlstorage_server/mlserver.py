@@ -11,7 +11,7 @@ from mlstorage_server.filestore import FileStoreManager
 from mlstorage_server.mldb import MLDB
 from mlstorage_server.webui import WebUI
 
-__all__ = ['make_app', 'server_entry']
+__all__ = ['make_app', 'mlserver']
 
 
 try:
@@ -106,8 +106,8 @@ def make_app(storage_root=None, mongo=None, db=None, collection=None,
               default=os.environ.get('MLSTORAGE_MONGO_COLL') or None)
 @click.option('--debug', default=False, is_flag=True,
               help='Whether or not to enable debugging features?')
-def server_entry(host, port, workers, storage_root, mongo, db, collection,
-                 debug):
+def mlserver(host, port, workers, storage_root, mongo, db, collection,
+             debug):
     """
     MLStorage API and web UI server.
     """
@@ -126,4 +126,4 @@ def server_entry(host, port, workers, storage_root, mongo, db, collection,
 
 
 if __name__ == '__main__':
-    server_entry()
+    mlserver()

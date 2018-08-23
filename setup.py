@@ -68,7 +68,7 @@ setup(
     ],
     entry_points='''
         [console_scripts]
-        mlserver=mlstorage_server.mlserver:server_entry
+        mlserver=mlstorage_server.mlserver:mlserver
         mldatabase=mlstorage_server.mldatabase:mldatabase
     '''
 )

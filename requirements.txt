@@ -1,7 +1,5 @@
 aiofile >= 1.4.3
 aiohttp >= 3.3.2
-cachetools >= 2.1.0
 click >= 6.7
 motor >= 2.0.0
-pyparsing >= 2.2.0
 pytz >= 2018.5
