@@ -88,7 +88,7 @@ export default {
 
     load () {
       eventBus.setLoadingFlag(true);
-      axios.get(`/v1/_get/${this.id}?timestamp=1`)
+      axios.get(`/v1/_get/${this.id}?timestamp=1&strict=1`)
         .then((resp) => {
           eventBus.setLoadingFlag(false);
           eventBus.unsetError();
@@ -107,7 +107,7 @@ export default {
     updateDoc (update) {
       if (update) {
         eventBus.setLoadingFlag(true);
-        axios.post(`/v1/_update/${this.id}?timestamp=1`, update)
+        axios.post(`/v1/_update/${this.id}?timestamp=1&strict=1`, update)
           .then((resp) => {
             eventBus.setLoadingFlag(false);
             eventBus.unsetError();

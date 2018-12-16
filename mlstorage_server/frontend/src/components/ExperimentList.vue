@@ -91,7 +91,7 @@ export default {
     load () {
       const pageId = this.thePageId;
       eventBus.setLoadingFlag(true);
-      axios.post(`/v1/_query?timestamp=1&skip=${(pageId - 1) * this.pageSize}&limit=${this.pageSize + 1}`, {
+      axios.post(`/v1/_query?timestamp=1&strict=1&skip=${(pageId - 1) * this.pageSize}&limit=${this.pageSize + 1}`, {
         body: this.query
       })
         .then((resp) => {

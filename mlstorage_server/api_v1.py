@@ -1,11 +1,13 @@
 import asyncio
 import functools
 import json
+import math
 import os
 import sys
 from json import JSONDecodeError
 from logging import getLogger
 
+import six
 from aiohttp import web
 
 from mlstorage_server.schema import validate_experiment_id
@@ -59,6 +61,20 @@ def file_entry_to_dict(entry):
     return ret
 
 
+def strict_dumps(obj, dumps):
+    def sub_filter(o):
+        if isinstance(o, dict):
+            return {k: sub_filter(v) for k, v in six.iteritems(o)}
+        elif isinstance(o, list):
+            return [sub_filter(v) for v in o]
+        elif isinstance(o, float) and not math.isfinite(o):
+            return str(o)
+        else:
+            return o
+
+    return dumps(sub_filter(json.loads(dumps(obj))))
+
+
 def json_api(method):
     """
     Wrap `method` as a JSON API endpoint.
@@ -81,6 +97,7 @@ def json_api(method):
     async def wrapper(self, request):
         pretty = query_string_get_switch(request, 'pretty', False)
         use_timestamp = query_string_get_switch(request, 'timestamp', False)
+        strict = query_string_get_switch(request, 'strict', False)
         dumps = functools.partial(
             json.dumps,
             cls=JsonEncoder,
@@ -89,6 +106,8 @@ def json_api(method):
             separators=(', ', ': ') if pretty else (',', ':'),
             use_timestamp=use_timestamp
         )
+        if strict:
+            dumps = functools.partial(strict_dumps, dumps=dumps)
         try:
             ret = await method(self, request)
         except (KeyError, FileNotFoundError):
