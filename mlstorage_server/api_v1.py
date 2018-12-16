@@ -7,7 +7,6 @@ import sys
 from json import JSONDecodeError
 from logging import getLogger
 
-import six
 from aiohttp import web
 
 from mlstorage_server.schema import validate_experiment_id
@@ -64,7 +63,7 @@ def file_entry_to_dict(entry):
 def strict_dumps(obj, dumps):
     def sub_filter(o):
         if isinstance(o, dict):
-            return {k: sub_filter(v) for k, v in six.iteritems(o)}
+            return {k: sub_filter(v) for k, v in o.items()}
         elif isinstance(o, list):
             return [sub_filter(v) for v in o]
         elif isinstance(o, float) and not math.isfinite(o):
