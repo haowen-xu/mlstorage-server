@@ -20,15 +20,10 @@
 </template>
 
 <script>
-import ExperimentStatusIcon from './StatusIcon';
 import TimeDiff from '../libs/timeDiff';
 import { statusToBootstrapClass } from '../libs/utils';
 
 export default {
-  components: {
-    ExperimentStatusIcon
-  },
-
   props: {
     doc: {
       type: Object

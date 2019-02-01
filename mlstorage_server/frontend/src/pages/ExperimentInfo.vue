@@ -120,6 +120,10 @@
               <th scope="row" class="fieldName">Exit Code</th>
               <td>{{ doc.exit_code }}</td>
             </tr>
+            <tr v-if="doc.storage_dir">
+              <th scope="row" class="fieldName">Storage Dir</th>
+              <td>{{ doc.storage_dir }}</td>
+            </tr>
             <tr v-if="doc.exc_info && doc.exc_info.work_dir">
               <th scope="row" class="fieldName">Work Dir</th>
               <td>{{ doc.exc_info.work_dir }}</td>
@@ -219,6 +223,7 @@ export default {
         keys.sort(natsort({ insensitive: true }));
         return keys;
       }
+      return null;
     },
 
     startTime () {
@@ -239,6 +244,7 @@ export default {
       if (this.doc.storage_size) {
         return filesize(this.doc.storage_size);
       }
+      return null;
     }
   },
 

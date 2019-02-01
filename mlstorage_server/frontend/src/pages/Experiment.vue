@@ -61,13 +61,13 @@ export default {
   mounted () {
     this.load();
     eventBus.addReloader(this.load);
-    this.autoReloader = setInterval(() => this.load(), 120 * 1000);
+    this._autoReloader = setInterval(() => this.load(), 120 * 1000);
   },
 
   destroyed () {
     if (this._autoReloader) {
       clearInterval(this._autoReloader);
-      this.autoReloader = null;
+      this._autoReloader = null;
     }
     eventBus.removeReloader(this.load);
   },
@@ -127,7 +127,7 @@ export default {
     deleteDoc () {
       eventBus.setLoadingFlag(true);
       axios.post(`/v1/_delete/${this.id}`)
-        .then((resp) => {
+        .then(() => {
           eventBus.setLoadingFlag(false);
           eventBus.unsetError();
           this.$router.push('/');
