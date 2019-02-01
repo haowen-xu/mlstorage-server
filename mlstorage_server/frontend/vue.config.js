@@ -9,5 +9,6 @@ module.exports = {
         }
     },
     runtimeCompiler: true,
-    outputDir: "../assets/"
+    outputDir: "../assets/",
+    assetsDir: "static/",
 }

@@ -59,7 +59,8 @@ class WebUI(object):
             web.get(url('/{id}/browse/'), self.handle_index),
             web.get(url('/{id}/browse/{path}'), self.handle_index),
         ])
-        app.router.add_static('/', self.assets_dir)
+        app.router.add_static(
+            '/static', os.path.join(self.assets_dir, 'static'))
 
     async def handle_add_slash(self, request):
         raise web.HTTPMovedPermanently(
