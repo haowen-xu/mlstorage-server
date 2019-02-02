@@ -146,10 +146,15 @@ export default {
       // }
 
       eventBus.setLoadingFlag(true);
-      axios.post(`/v1/_query?timestamp=1&strict=1&sort=${this.sortBy}&` +
-                 `skip=${(pageId - 1) * this.pageSize}&limit=${this.pageSize + 1}`,
-                 this.queryString || {},
-                 { headers: { 'Content-Type': 'text/plain' } })
+      const uri = `/v1/_query?timestamp=1&strict=1&sort=${this.sortBy}&` +
+        `skip=${(pageId - 1) * this.pageSize}&limit=${this.pageSize + 1}`;
+      const body = this.queryString || {};
+      const headers = {};
+      if (this.queryString) {
+        headers['Content-Type'] = 'text/plain';
+      }
+
+      axios.post(uri, body, {headers: headers})
         .then((resp) => {
           this.selectedExperiments = [];
           this.showCheckbox = false;
