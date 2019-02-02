@@ -16,6 +16,16 @@
 
     <b-row>
       <b-col>
+        <b-form-input v-model="tempQueryString"
+                      type="text"
+                      class="query-input"
+                      placeholder="Enter your query"
+                      @keyup.native.enter="queryStringKeyEnter"></b-form-input>
+      </b-col>
+    </b-row>
+
+    <b-row>
+      <b-col>
         <div v-if="docs">
           <experiment-list-tool-bar v-if="this.docs && this.docs.length > 0"
                                     :page-id="thePageId"
@@ -70,10 +80,6 @@ export default {
   },
 
   props: {
-    query: {
-      type: Object,
-      default: () => {}
-    },
     pageId: {
       type: Number,
       default: 1
@@ -88,7 +94,9 @@ export default {
       hasNextPage: true,
       selectedExperiments: [],
       showCheckbox: false,
-      sortBy: userConfig.dashboard.sortBy
+      sortBy: userConfig.dashboard.sortBy,
+      queryString: userConfig.dashboard.queryString,
+      tempQueryString: userConfig.dashboard.queryString
     };
   },
 
@@ -132,11 +140,16 @@ export default {
   methods: {
     load () {
       const pageId = this.thePageId;
+      // const query = {};
+      // if (this.queryString) {
+      //   query['$text'] = {'$search': this.queryString};
+      // }
+
       eventBus.setLoadingFlag(true);
       axios.post(`/v1/_query?timestamp=1&strict=1&sort=${this.sortBy}&` +
-                 `skip=${(pageId - 1) * this.pageSize}&limit=${this.pageSize + 1}`, {
-        body: this.query
-      })
+                 `skip=${(pageId - 1) * this.pageSize}&limit=${this.pageSize + 1}`,
+                 this.queryString || {},
+                 { headers: { 'Content-Type': 'text/plain' } })
         .then((resp) => {
           this.selectedExperiments = [];
           this.showCheckbox = false;
@@ -172,6 +185,12 @@ export default {
     sortByChanged (sortBy) {
       this.sortBy = sortBy;
       userConfig.dashboard.sortBy = sortBy;
+      this.load();
+    },
+
+    queryStringKeyEnter () {
+      this.queryString = this.tempQueryString;
+      userConfig.dashboard.queryString = this.tempQueryString;
       this.load();
     },
 
@@ -238,7 +257,10 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.top-tool-bar, .bottom-tool-bar {
+.top-tool-bar, .bottom-tool-bar, .experiment-list {
   margin: 10px 0;
+}
+.query-input {
+  margin-top: 10px;
 }
 </style>

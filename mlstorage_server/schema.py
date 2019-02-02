@@ -1,9 +1,14 @@
+import sys
 import re
 from collections import OrderedDict
 from datetime import datetime
 
 import bson
 from bson import ObjectId
+
+if sys.version_info[:2] < (3, 7):
+    from backports.datetime_fromisoformat import MonkeyPatch
+    MonkeyPatch.patch_fromisoformat()
 
 __all__ = [
     'EXPERIMENT_STATUSES',

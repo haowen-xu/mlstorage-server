@@ -35,7 +35,7 @@ def from_database_experiment_doc(experiment_doc):
     return experiment_doc
 
 
-async def ensure_mongo_indexes(collection, *indexes):
+async def ensure_mongo_indexes(collection, *indexes, full_text=False):
     """
     Ensure the specified MongoDB `collection` has given `indexes`.
 
@@ -43,6 +43,7 @@ async def ensure_mongo_indexes(collection, *indexes):
         collection (AsyncIOMotorCollection): The MongoDB collection.
         \*indexes (list[(str, int)]): List of indices plans
             ``list[(key, direction)]``.
+        full_text (bool): Whether or not to create a full-text index?
 
     Notes:
         This method is NOT concurrently safe.
@@ -50,16 +51,26 @@ async def ensure_mongo_indexes(collection, *indexes):
     if indexes:
         created_flag = [False] * len(indexes)
         information = await collection.index_information()
+        has_full_text = False
+
+        # inspect the indices
         for _, index_info in information.items():
             for i, index_to_create in enumerate(indexes):
                 if index_to_create == index_info['key']:
                     created_flag[i] = True
+                elif index_info.get('textIndexVersion', None) is not None:
+                    has_full_text = True
+
+        # prepare for the indices
         index_models = []
         for i, (created, index_to_create) in \
                 enumerate(zip(created_flag, indexes)):
             if not created:
                 index_models.append(IndexModel(index_to_create))
+        if full_text and not has_full_text:
+            index_models.append(('$**', 'text'))
 
+        # create the indices
         if index_models:
             _ = await collection.create_indexes(index_models)
 
@@ -319,10 +330,12 @@ class MLDB(object):
             The matched documents, in DESCENDING order of "heartbeat".
         """
         # assemble the query
-        filter_ = to_database_experiment_doc(
-            validate_experiment_doc(dict(filter or ())))
+        filter_ = dict(filter or ())
         if not include_deleted:
-            filter_['deleted'] = {'$ne': True}
+            if not filter_:
+                filter_['deleted'] = {'$ne': True}
+            else:
+                filter_ = {'$and': [filter_, {'deleted': {'$ne': True}}]}
         if sort_by is None:
             sort_by = [('heartbeat', pymongo.DESCENDING)]
 

@@ -2,7 +2,7 @@ module.exports = {
     devServer: {
         proxy: {
             '^/v1': {
-                target: 'http://mlserver.ipwx.me:7980',
+                target: 'http://localhost:5000',
                 ws: true,
                 changeOrigin: true
             }
@@ -11,4 +11,4 @@ module.exports = {
     runtimeCompiler: true,
     outputDir: "../assets/",
     assetsDir: "static/",
-}
+};

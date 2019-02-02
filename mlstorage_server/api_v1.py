@@ -10,6 +10,8 @@ from logging import getLogger
 
 from aiohttp import web
 
+from mlstorage_server.query import (build_filter_dict_from_query_string,
+                                    BadQueryError)
 from mlstorage_server.schema import validate_experiment_id
 from mlstorage_server.mldb import MLDB
 from mlstorage_server.utils import query_string_get, path_info_get, JsonEncoder
@@ -209,14 +211,30 @@ class ApiV1(object):
 
         if request.method == 'GET':
             filter_ = {}
+        elif request.headers.get('Content-Type', '').startswith('text/plain'):
+            filter_ = await request.text()
         else:
             filter_ = await request.json()
 
+        # build filter dict from query string
+        if isinstance(filter_, str):
+            try:
+                filter_ = build_filter_dict_from_query_string(filter_)
+                getLogger(__name__).debug('Filter: %s', filter_)
+            except BadQueryError:
+                getLogger(__name__).debug('Bad query, return empty response.')
+                return []
+
         data = []
-        async for doc in self.mldb.iter_docs(
-                filter_, skip, limit, sort_by=sort_by):
-            data.append(add_storage_dir(self.store_mgr, doc))
-        return data
+        try:
+            async for doc in self.mldb.iter_docs(
+                    filter_, skip, limit, sort_by=sort_by):
+                data.append(add_storage_dir(self.store_mgr, doc))
+            return data
+        except Exception:
+            getLogger(__name__).warning(
+                'Failed to load experiment.', exc_info=True)
+            raise web.HTTPInternalServerError()
 
     @json_api
     async def handle_get(self, request):
