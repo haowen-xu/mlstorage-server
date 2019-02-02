@@ -220,9 +220,9 @@ class ApiV1(object):
         if isinstance(filter_, str):
             try:
                 filter_ = build_filter_dict_from_query_string(filter_)
-                getLogger(__name__).debug('Filter: %s', filter_)
+                getLogger(__name__).info('Filter: %s', filter_)
             except BadQueryError:
-                getLogger(__name__).debug('Bad query, return empty response.')
+                getLogger(__name__).info('Bad query, return empty response.')
                 return []
 
         data = []
