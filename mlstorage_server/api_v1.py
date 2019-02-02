@@ -3,6 +3,7 @@ import functools
 import json
 import math
 import os
+import pymongo
 import sys
 from json import JSONDecodeError
 from logging import getLogger
@@ -182,14 +183,29 @@ class ApiV1(object):
         API endpoint for querying experiments.
 
         Usage:
-            GET /v1/_query[?skip=0&limit=10&pretty=0]
-            POST /v1/_query[?skip=0&limit=10&pretty=0] {...}
+            GET /v1/_query[?skip=0&limit=10&sort=[+/-]field&pretty=0]
+            POST /v1/_query[?skip=0&limit=10&sort=[+/-]field&pretty=0] {...}
 
         Returns:
             List of experiment documents.
         """
         skip = query_string_get(request, 'skip', 0, int)
         limit = query_string_get(request, 'limit', 10, int)
+        sort_by = query_string_get(request, 'sort', None, str)
+
+        if sort_by:
+            order = pymongo.ASCENDING
+            if sort_by.startswith('-'):
+                order = pymongo.DESCENDING
+                sort_by = sort_by[1:]
+            elif sort_by.startswith('+'):
+                sort_by = sort_by[1:]
+
+            if not sort_by:
+                raise web.HTTPBadRequest()
+            sort_by = [(sort_by, order)]
+        else:
+            sort_by = None
 
         if request.method == 'GET':
             filter_ = {}
@@ -197,7 +213,8 @@ class ApiV1(object):
             filter_ = await request.json()
 
         data = []
-        async for doc in self.mldb.iter_docs(filter_, skip, limit):
+        async for doc in self.mldb.iter_docs(
+                filter_, skip, limit, sort_by=sort_by):
             data.append(add_storage_dir(self.store_mgr, doc))
         return data
 
