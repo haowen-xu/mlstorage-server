@@ -17,7 +17,7 @@
     <b-row>
       <b-col>
         <div v-if="docs">
-          <experiment-list-tool-bar v-if="this.docs"
+          <experiment-list-tool-bar v-if="this.docs && this.docs.length > 0"
                                     :page-id="thePageId"
                                     :has-next-page="hasNextPage"
                                     :has-prev-page="hasPrevPage"
@@ -37,7 +37,7 @@
                                    :show-checkbox="showCheckbox">
             </experiment-list-entry>
           </b-list-group>
-          <experiment-list-tool-bar v-if="this.docs"
+          <experiment-list-tool-bar v-if="this.docs && this.docs.length > 0"
                                     :page-id="thePageId"
                                     :has-next-page="hasNextPage"
                                     :has-prev-page="hasPrevPage"
