@@ -17,13 +17,16 @@
     <b-row>
       <b-col>
         <div v-if="docs">
-          <experiment-list-tool-bar :page-id="thePageId"
+          <experiment-list-tool-bar v-if="this.docs"
+                                    :page-id="thePageId"
                                     :has-next-page="hasNextPage"
                                     :has-prev-page="hasPrevPage"
                                     :show-checkbox="showCheckbox"
                                     :selected-experiments="selectedExperiments"
+                                    :sort-by="sortBy"
                                     @navToPage="navToPage"
                                     @showCheckboxChanged="showCheckboxChanged"
+                                    @sortByChanged="sortByChanged"
                                     @deleteDocs="deleteDocs"
                                     class="top-tool-bar">
           </experiment-list-tool-bar>
@@ -34,13 +37,16 @@
                                    :show-checkbox="showCheckbox">
             </experiment-list-entry>
           </b-list-group>
-          <experiment-list-tool-bar :page-id="thePageId"
+          <experiment-list-tool-bar v-if="this.docs"
+                                    :page-id="thePageId"
                                     :has-next-page="hasNextPage"
                                     :has-prev-page="hasPrevPage"
                                     :show-checkbox="showCheckbox"
                                     :selected-experiments="selectedExperiments"
+                                    :sort-by="sortBy"
                                     @navToPage="navToPage"
                                     @showCheckboxChanged="showCheckboxChanged"
+                                    @sortByChanged="sortByChanged"
                                     @deleteDocs="deleteDocs"
                                     class="bottom-tool-bar">
           </experiment-list-tool-bar>
@@ -53,6 +59,7 @@
 <script>
 import axios from 'axios';
 import eventBus from '../libs/eventBus';
+import userConfig from '../libs/userConfig';
 import ExperimentListToolBar from './ExperimentListToolBar';
 import ExperimentListEntry from './ExperimentListEntry';
 
@@ -67,10 +74,6 @@ export default {
       type: Object,
       default: () => {}
     },
-    pageSize: {
-      type: Number,
-      default: 10
-    },
     pageId: {
       type: Number,
       default: 1
@@ -81,9 +84,11 @@ export default {
     return {
       docs: null,
       thePageId: this.pageId,
+      pageSize: userConfig.dashboard.pageSize,
       hasNextPage: true,
       selectedExperiments: [],
-      showCheckbox: false
+      showCheckbox: false,
+      sortBy: userConfig.dashboard.sortBy
     };
   },
 
@@ -128,7 +133,8 @@ export default {
     load () {
       const pageId = this.thePageId;
       eventBus.setLoadingFlag(true);
-      axios.post(`/v1/_query?timestamp=1&strict=1&skip=${(pageId - 1) * this.pageSize}&limit=${this.pageSize + 1}`, {
+      axios.post(`/v1/_query?timestamp=1&strict=1&sort=${this.sortBy}&` +
+                 `skip=${(pageId - 1) * this.pageSize}&limit=${this.pageSize + 1}`, {
         body: this.query
       })
         .then((resp) => {
@@ -161,6 +167,12 @@ export default {
 
     navToPage (pageId) {
       this.$emit('navToPage', pageId);
+    },
+
+    sortByChanged (sortBy) {
+      this.sortBy = sortBy;
+      userConfig.dashboard.sortBy = sortBy;
+      this.load();
     },
 
     experimentSelectChanged (id, selected) {

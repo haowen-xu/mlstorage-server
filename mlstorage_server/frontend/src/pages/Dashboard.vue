@@ -18,8 +18,7 @@
 
     <div class="main-wrapper">
       <error-box></error-box>
-      <experiment-list :pageSize="pageSize"
-                       :pageId="pageId"
+      <experiment-list :pageId="pageId"
                        @navToPage="navToPage" />
     </div>
   </div>
@@ -30,7 +29,6 @@ import DelayedProgressBar from '../components/DelayedProgressBar';
 import ErrorBox from '../components/ErrorBox';
 import ExperimentList from '../components/ExperimentList.vue';
 import eventBus from '../libs/eventBus';
-import userConfig from '../libs/userConfig';
 
 export default {
   components: {
@@ -41,7 +39,6 @@ export default {
 
   data () {
     return {
-      pageSize: userConfig.dashboard.pageSize,
       pageId: Number.parseInt(this.$route.params.pageId || 1)
     };
   },

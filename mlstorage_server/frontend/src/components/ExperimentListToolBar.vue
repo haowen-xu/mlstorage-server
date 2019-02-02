@@ -10,9 +10,15 @@
           Delete<span v-if="showCheckbox"> ({{selectedCount}})</span>
         </b-button>
       </b-button-group>
+
+      <b-dropdown class="mx-1" left text="Options">
+        <b-dropdown-header>Sort By</b-dropdown-header>
+        <b-form-select v-model="theSortBy" :options="sortByOptions" class="select-input"></b-form-select>
+      </b-dropdown>
     </b-button-toolbar>
 
-    <b-button-toolbar v-if="hasNavigation" key-nav aria-label="Toolbar with button groups"
+    <b-button-toolbar v-if="hasNavigation"
+                      key-nav aria-label="Toolbar with button groups"
                       class="navigation-bar">
       <b-button-group class="mx-1">
         <b-btn :disabled="!hasPrevPage" @click="prevPage">&lsaquo;</b-btn>
@@ -45,12 +51,20 @@ export default {
     },
     selectedExperiments: {
       type: Array
+    },
+    sortBy: {
+      type: String
     }
   },
 
   data () {
     return {
-      myShowCheckbox: this.showCheckbox
+      myShowCheckbox: this.showCheckbox,
+      theSortBy: this.sortBy,
+      sortByOptions: [
+        { value: '-heartbeat', text: 'Last Update' },
+        { value: '-start_time', text: 'Start Time' }
+      ]
     };
   },
 
@@ -73,10 +87,13 @@ export default {
       this.$emit('showCheckboxChanged', value);
     },
 
-    // selectedExperiments (value) {
-    //   this.selectedCount = (value && value.length) || 0;
-    //   console.log(value, this.selectedCount);
-    // }
+    sortBy (value) {
+      this.theSortBy = value;
+    },
+
+    theSortBy (value) {
+      this.$emit('sortByChanged', value);
+    }
   },
 
   methods: {
@@ -101,6 +118,8 @@ export default {
 }
 .operation-bar {
   float: left;
+  .select-input {
+  }
 }
 .navigation-bar {
   float: right;

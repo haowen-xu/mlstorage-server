@@ -24,7 +24,7 @@ function makeConfig (obj) {
 class UserConfig {
   constructor () {
     this._dashboard = makeConfig({
-      pageId: 1,
+      sortBy: '-heartbeat',
       pageSize: 10,
       queryString: ''
     });
