@@ -20,7 +20,7 @@
       <error-box></error-box>
       <experiment-list :pageSize="pageSize"
                        :pageId="pageId"
-                       @pageIdChanged="pageIdChanged" />
+                       @navToPage="navToPage" />
     </div>
   </div>
 </template>
@@ -42,7 +42,7 @@ export default {
   data () {
     return {
       pageSize: userConfig.dashboard.pageSize,
-      pageId: userConfig.dashboard.pageId
+      pageId: Number.parseInt(this.$route.params.pageId || 1)
     };
   },
 
@@ -55,8 +55,9 @@ export default {
       eventBus.callReloader();
     },
 
-    pageIdChanged (pageId) {
-      userConfig.dashboard.pageId = pageId;
+    navToPage (pageId) {
+      this.$router.push(`/page/${pageId}`);
+      this.pageId = pageId;
     }
   }
 };

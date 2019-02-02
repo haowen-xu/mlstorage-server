@@ -16,6 +16,10 @@ const router = new Router({
       component: Dashboard
     },
     {
+      path: '/page/:pageId(\\d+)',
+      component: Dashboard
+    },
+    {
       path: '/:id([A-Za-z0-9]{24})',
       component: Experiment,
       children: [

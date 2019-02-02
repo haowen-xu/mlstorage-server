@@ -48,10 +48,12 @@ class WebUI(object):
         def url(fmt):
             return '' + fmt.format(
                 id='{id:[A-Za-z0-9]{24}}',
-                path='{path:.*}'
+                path='{path:.*}',
+                pageId='{pageId:\\d+}'
             )
         app.add_routes([
             web.get(url('/'), self.handle_index),
+            web.get(url('/page/{pageId}'), self.handle_index),
             web.get(url('/{id}'), self.handle_add_slash),
             web.get(url('/{id}/'), self.handle_index),
             web.get(url('/{id}/console'), self.handle_index),

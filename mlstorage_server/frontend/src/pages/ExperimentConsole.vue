@@ -104,6 +104,7 @@ export default {
               this.rangeStart = Number.parseInt(contentRange.split('-')[1].split('/')[0]) + 1;
               this.autoReloader.setReloader(true);
             } catch (e) {
+              // eslint-disable-next-line
               console.log('Could not parse Content-Range.');
               this.autoReloader.setReloader(false);
             }
