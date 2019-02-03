@@ -16,7 +16,7 @@
 
     <b-row>
       <b-col>
-        <b-form-input v-model="theQueryString"
+        <b-form-input v-model="inputQueryString"
                       type="text"
                       class="query-input"
                       placeholder="Enter your query"
@@ -27,7 +27,7 @@
     <b-row>
       <b-col>
         <div v-if="docs">
-          <experiment-list-tool-bar :page-id="thePageId"
+          <experiment-list-tool-bar :page-id="pageId"
                                     :has-next-page="hasNextPage"
                                     :has-prev-page="hasPrevPage"
                                     :show-checkbox="showCheckbox"
@@ -47,7 +47,7 @@
             </experiment-list-entry>
           </b-list-group>
           <experiment-list-tool-bar v-if="this.docs && this.docs.length > 0"
-                                    :page-id="thePageId"
+                                    :page-id="pageId"
                                     :has-next-page="hasNextPage"
                                     :has-prev-page="hasPrevPage"
                                     :show-checkbox="showCheckbox"
@@ -92,13 +92,12 @@ export default {
   data () {
     return {
       docs: null,
-      thePageId: this.pageId,
       pageSize: userConfig.dashboard.pageSize,
       hasNextPage: true,
       selectedExperiments: [],
       showCheckbox: false,
       sortBy: userConfig.dashboard.sortBy,
-      theQueryString: this.queryString
+      inputQueryString: this.queryString
     };
   },
 
@@ -118,7 +117,7 @@ export default {
 
   computed: {
     hasPrevPage () {
-      return this.thePageId > 1;
+      return this.pageId > 1;
     },
 
     selectedCount () {
@@ -130,25 +129,23 @@ export default {
     pageSize () {
       this.load();
     },
-    pageId (pageId) {
-      this.thePageId = pageId;
+    pageId () {
       this.load();
     },
     queryString (queryString) {
-      this.theQueryString = queryString;
+      this.inputQueryString = queryString;
       this.load();
     }
   },
 
   methods: {
     load () {
-      const pageId = this.thePageId;
+      const pageId = this.pageId;
 
       eventBus.setLoadingFlag(true);
       const uri = `/v1/_query?timestamp=1&strict=1&sort=${this.sortBy}&` +
         `skip=${(pageId - 1) * this.pageSize}&limit=${this.pageSize + 1}`;
       const body = this.queryString || {};
-      console.log(this.queryString);
       const headers = {};
       if (this.queryString) {
         headers['Content-Type'] = 'text/plain';
@@ -158,7 +155,7 @@ export default {
         .then((resp) => {
           this.selectedExperiments = [];
           this.showCheckbox = false;
-          if (pageId === this.thePageId) {
+          if (pageId === this.pageId) {
             const docs = resp.data;
             if (docs.length > this.pageSize) {
               this.hasNextPage = true;
@@ -194,7 +191,7 @@ export default {
     },
 
     queryStringKeyEnter () {
-      this.$emit('navToPage', 1, this.theQueryString);
+      this.$emit('navToPage', 1, this.inputQueryString);
       this.load();
     },
 

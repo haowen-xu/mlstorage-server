@@ -35,13 +35,13 @@
             <tbody>
             <tr>
               <th scope="row" class="fieldName">ID</th>
-              <td class="id">
+              <td class="id fieldValue">
                 <span>{{ doc.id }}</span>
               </td>
             </tr>
             <tr>
               <th scope="row" class="fieldName">Name</th>
-              <td>
+              <td class="fieldValue">
                 <editable-text :value="doc.name"
                                @change="onNameChanged">
                   {{ doc.name }}
@@ -50,7 +50,7 @@
             </tr>
             <tr>
               <th scope="row" class="fieldName">Description</th>
-              <td>
+              <td class="fieldValue">
                 <editable-text :value="doc.description"
                                @change="onDescriptionChanged">
                   {{ doc.description }}
@@ -59,7 +59,7 @@
             </tr>
             <tr>
               <th scope="row" class="fieldName">Tags</th>
-              <td class="tags">
+              <td class="tags fieldValue">
                 <editable-text :value="doc.tags"
                                :valueToText="tagsToText"
                                :textToValue="textToTags"
@@ -70,15 +70,15 @@
             </tr>
             <tr>
               <th scope="row" class="fieldName">Status</th>
-              <td>
+              <td class="fieldValue">
                 <div :class="'text-' + statusClass">{{ statusText }}</div>
               </td>
             </tr>
             <tr v-if="doc.error && doc.error.message">
               <th scope="row" class="fieldName">Error</th>
-              <td>
+              <td class="fieldValue">
                 <div>
-                  {{ doc.error.message }}
+                  <pre>{{ doc.error.message }}</pre>
                   <b-button v-if="doc.error.traceback" class="show-traceback-btn"
                             :pressed.sync="showTraceback" variant="secondary" size="sm">
                     Show Traceback
@@ -90,13 +90,13 @@
             </tr>
             <tr v-if="doc.result">
               <th scope="row" class="fieldName">Result</th>
-              <td>
+              <td class="fieldValue">
                 <dict-table :items="doc.result" />
               </td>
             </tr>
             <tr v-if="doc.config || doc.default_config">
               <th scope="row" class="fieldName">Config</th>
-              <td v-if="doc.default_config">
+              <td v-if="doc.default_config" class="fieldValue">
                 <b-button :pressed.sync="showDefaultConfig" variant="secondary" size="sm">
                   Show Default Config
                 </b-button>
@@ -108,49 +108,55 @@
                             :items="doc.config"
                             style="margin-top: 5px"/>
               </td>
-              <td v-else>
+              <td v-else class="fieldValue">
                 <dict-table :items="mergedConfig" />
               </td>
             </tr>
             <tr v-if="doc.args">
               <th scope="row" class="fieldName">Args</th>
-              <td>{{ doc.args }}</td>
+              <td class="fieldValue">
+                <ul class="arg-list">
+                  <li v-for="(arg, index) in doc.args" :key="index">
+                    <pre>{{ arg }}</pre>
+                  </li>
+                </ul>
+              </td>
             </tr>
             <tr v-if="doc.exit_code !== undefined && doc.exit_code !== null">
               <th scope="row" class="fieldName">Exit Code</th>
-              <td>{{ doc.exit_code }}</td>
+              <td class="fieldValue">{{ doc.exit_code }}</td>
             </tr>
             <tr v-if="doc.storage_dir">
               <th scope="row" class="fieldName">Storage Dir</th>
-              <td>{{ doc.storage_dir }}</td>
+              <td class="fieldValue">{{ doc.storage_dir }}</td>
             </tr>
             <tr v-if="doc.exc_info && doc.exc_info.work_dir">
               <th scope="row" class="fieldName">Work Dir</th>
-              <td>{{ doc.exc_info.work_dir }}</td>
+              <td class="fieldValue">{{ doc.exc_info.work_dir }}</td>
             </tr>
             <tr v-if="storageSize">
               <th scope="row" class="fieldName">File Size</th>
-              <td>{{ storageSize }}</td>
+              <td class="fieldValue">{{ storageSize }}</td>
             </tr>
             <tr v-if="doc.start_time">
               <th scope="row" class="fieldName">Start Time</th>
-              <td>{{ startTime }}</td>
+              <td class="fieldValue">{{ startTime }}</td>
             </tr>
             <tr>
               <th scope="row" class="fieldName">Last Update</th>
-              <td>{{ dateText }}</td>
+              <td class="fieldValue">{{ dateText }}</td>
             </tr>
             <tr v-if="doc.exc_info && doc.exc_info.hostname">
               <th scope="row" class="fieldName">Hostname</th>
-              <td>{{ doc.exc_info.hostname }}</td>
+              <td class="fieldValue">{{ doc.exc_info.hostname }}</td>
             </tr>
             <tr v-if="doc.exc_info && doc.exc_info.pid">
               <th scope="row" class="fieldName">PID</th>
-              <td>{{ doc.exc_info.pid }}</td>
+              <td class="fieldValue">{{ doc.exc_info.pid }}</td>
             </tr>
             <tr v-if="doc.exc_info && doc.exc_info.env">
               <th scope="row" class="fieldName">Environ</th>
-              <td>
+              <td class="fieldValue">
                 <b-button :pressed.sync="showEnviron" variant="secondary" size="sm">
                   Show Environmental Variables
                 </b-button>
@@ -322,10 +328,21 @@ export default {
     min-width: 120px;
     max-width: 160px;
   }
+  .fieldValue {
+    font-family: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  }
+  .arg-list {
+    pre {
+      margin-bottom: 0;
+    }
+    padding-left: 20px;
+    margin-bottom: 0;
+  }
   .show-traceback-btn {
     margin-left: 5px;
   }
   .traceback {
+    margin-top: 10px;
     margin-bottom: 0;
   }
   .tags {

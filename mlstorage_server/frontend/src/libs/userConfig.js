@@ -25,8 +25,7 @@ class UserConfig {
   constructor () {
     this._dashboard = makeConfig({
       sortBy: '-heartbeat',
-      pageSize: 10,
-      queryString: ''
+      pageSize: 10
     });
   }
 

@@ -57,13 +57,12 @@ export default {
     },
 
     navToPage (pageId, queryString) {
-      this.$router.push({
-        path: `/page/${pageId}`,
-        query: {
-          q: queryString
-        }
-      });
+      const dst = { path: `/page/${pageId}` };
+      if (queryString) {
+        dst["query"] = { q: queryString };
+      }
       this.pageId = pageId;
+      this.$router.push(dst);
     }
   }
 };
