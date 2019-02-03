@@ -16,7 +16,7 @@
 
     <b-row>
       <b-col>
-        <b-form-input v-model="tempQueryString"
+        <b-form-input v-model="theQueryString"
                       type="text"
                       class="query-input"
                       placeholder="Enter your query"
@@ -82,6 +82,10 @@ export default {
     pageId: {
       type: Number,
       default: 1
+    },
+    queryString: {
+      type: String,
+      default: ""
     }
   },
 
@@ -94,8 +98,7 @@ export default {
       selectedExperiments: [],
       showCheckbox: false,
       sortBy: userConfig.dashboard.sortBy,
-      queryString: userConfig.dashboard.queryString,
-      tempQueryString: userConfig.dashboard.queryString
+      theQueryString: this.queryString
     };
   },
 
@@ -124,14 +127,15 @@ export default {
   },
 
   watch: {
-    query () {
-      this.load();
-    },
     pageSize () {
       this.load();
     },
     pageId (pageId) {
       this.thePageId = pageId;
+      this.load();
+    },
+    queryString (queryString) {
+      this.theQueryString = queryString;
       this.load();
     }
   },
@@ -139,15 +143,12 @@ export default {
   methods: {
     load () {
       const pageId = this.thePageId;
-      // const query = {};
-      // if (this.queryString) {
-      //   query['$text'] = {'$search': this.queryString};
-      // }
 
       eventBus.setLoadingFlag(true);
       const uri = `/v1/_query?timestamp=1&strict=1&sort=${this.sortBy}&` +
         `skip=${(pageId - 1) * this.pageSize}&limit=${this.pageSize + 1}`;
       const body = this.queryString || {};
+      console.log(this.queryString);
       const headers = {};
       if (this.queryString) {
         headers['Content-Type'] = 'text/plain';
@@ -183,7 +184,7 @@ export default {
     },
 
     navToPage (pageId) {
-      this.$emit('navToPage', pageId);
+      this.$emit('navToPage', pageId, this.queryString);
     },
 
     sortByChanged (sortBy) {
@@ -193,8 +194,7 @@ export default {
     },
 
     queryStringKeyEnter () {
-      this.queryString = this.tempQueryString;
-      userConfig.dashboard.queryString = this.tempQueryString;
+      this.$emit('navToPage', 1, this.theQueryString);
       this.load();
     },
 

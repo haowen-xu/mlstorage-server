@@ -18,7 +18,8 @@
 
     <div class="main-wrapper">
       <error-box></error-box>
-      <experiment-list :pageId="pageId"
+      <experiment-list :page-id="pageId"
+                       :query-string="queryString"
                        @navToPage="navToPage" />
     </div>
   </div>
@@ -37,14 +38,17 @@ export default {
     ExperimentList
   },
 
-  data () {
-    return {
-      pageId: Number.parseInt(this.$route.params.pageId || 1)
-    };
-  },
-
   mounted () {
     document.title = 'Dashboard - MLStorage';
+  },
+
+  computed: {
+    pageId () {
+      return Number.parseInt(this.$route.params.pageId || 1);
+    },
+    queryString () {
+      return this.$route.query.q || "";
+    }
   },
 
   methods: {
@@ -52,8 +56,13 @@ export default {
       eventBus.callReloader();
     },
 
-    navToPage (pageId) {
-      this.$router.push(`/page/${pageId}`);
+    navToPage (pageId, queryString) {
+      this.$router.push({
+        path: `/page/${pageId}`,
+        query: {
+          q: queryString
+        }
+      });
       this.pageId = pageId;
     }
   }
