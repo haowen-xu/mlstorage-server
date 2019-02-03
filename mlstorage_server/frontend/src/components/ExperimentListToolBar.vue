@@ -3,7 +3,7 @@
     <div class="clearfix"></div>
 
     <b-button-toolbar class="operation-bar">
-      <b-button-group class="mx-1">
+      <b-button-group class="mx-1" size="sm">
         <b-button :pressed.sync="myShowCheckbox">Select</b-button>
         <b-button variant="danger" v-if="showCheckbox" :disabled="!selectedCount"
                   v-b-modal.deleteConfirm>
@@ -11,22 +11,22 @@
         </b-button>
       </b-button-group>
 
-      <b-dropdown class="mx-1" left text="Options">
-        <b-dropdown-header>Sort By</b-dropdown-header>
-        <b-form-select v-model="theSortBy" :options="sortByOptions" class="select-input"></b-form-select>
+      <b-dropdown class="mx-1" size="sm" left text="Options">
+        <b-dropdown-header size="sm">Sort By</b-dropdown-header>
+        <b-form-select size="sm" v-model="theSortBy" :options="sortByOptions" class="select-input"></b-form-select>
       </b-dropdown>
     </b-button-toolbar>
 
     <b-button-toolbar v-if="hasNavigation"
                       key-nav aria-label="Toolbar with button groups"
                       class="navigation-bar">
-      <b-button-group class="mx-1">
+      <b-button-group class="mx-1" size="sm">
         <b-btn :disabled="!hasPrevPage" @click="prevPage">&lsaquo;</b-btn>
       </b-button-group>
-        <b-button-group class="mx-1">
+      <b-button-group class="mx-1" size="sm">
         <b-btn>{{ pageId }}</b-btn>
       </b-button-group>
-      <b-button-group class="mx-1">
+      <b-button-group class="mx-1" size="sm">
         <b-btn :disabled="!hasNextPage" @click="nextPage">&rsaquo;</b-btn>
       </b-button-group>
     </b-button-toolbar>
