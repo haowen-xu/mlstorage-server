@@ -86,6 +86,10 @@ export default {
     queryString: {
       type: String,
       default: ""
+    },
+    loadVersion: {
+      type: Number,
+      default: 0,
     }
   },
 
@@ -126,20 +130,16 @@ export default {
   },
 
   watch: {
-    pageSize () {
-      this.load();
-    },
-    pageId () {
-      this.load();
-    },
-    queryString (queryString) {
-      this.inputQueryString = queryString;
+    loadVersion () {
       this.load();
     }
   },
 
   methods: {
     load () {
+      if (this.stopLoading)
+        return;
+
       const pageId = this.pageId;
 
       eventBus.setLoadingFlag(true);

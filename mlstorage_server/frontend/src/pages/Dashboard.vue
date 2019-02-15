@@ -20,6 +20,7 @@
       <error-box></error-box>
       <experiment-list :page-id="pageId"
                        :query-string="queryString"
+                       :load-version="loadVersion"
                        @navToPage="navToPage" />
     </div>
   </div>
@@ -42,6 +43,12 @@ export default {
     document.title = 'Dashboard - MLStorage';
   },
 
+  data() {
+    return {
+      loadVersion: 0
+    };
+  },
+
   computed: {
     pageId () {
       return Number.parseInt(this.$route.params.pageId || 1);
@@ -61,8 +68,8 @@ export default {
       if (queryString) {
         dst["query"] = { q: queryString };
       }
-      this.pageId = pageId;
       this.$router.push(dst);
+      this.loadVersion += 1;
     }
   }
 };
