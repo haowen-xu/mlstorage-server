@@ -61,12 +61,13 @@ import { formatDateTime } from '../libs/utils';
 export default {
   data () {
     return {
-      items: null
+      items: null,
+      path: this.routePath
     };
   },
 
   mounted () {
-    this.load();
+    this.load(this.routePath);
     eventBus.addReloader(this.load);
   },
 
@@ -79,10 +80,6 @@ export default {
       return this.$route.params.id;
     },
 
-    path () {
-      return this.normalizePath(this.$route.params.path || '');
-    },
-
     hasParentPath () {
       return this.path !== '/';
     },
@@ -93,26 +90,33 @@ export default {
 
     sortedFiles () {
       return this.filterItems((item) => !item.isdir);
+    },
+
+    routePath () {
+      return this.normalizePath(this.$route.params.path || '');
     }
   },
 
   watch: {
-    path () {
-      this.load();
+    routePath (value) {
+      this.load(value);
     }
   },
 
   methods: {
-    load () {
+    load (path) {
+      path = path || this.path;
       eventBus.setLoadingFlag(true);
-      axios.get(`/v1/_listdir/${this.id}${this.path}`)
+      axios.get(`/v1/_listdir/${this.id}${path}`)
         .then((resp) => {
           this.items = resp.data;
+          this.path = path;
           eventBus.setLoadingFlag(false);
           eventBus.unsetError();
         })
         .catch((error) => {
           this.items = null;
+          this.path = path;
           eventBus.setLoadingFlag(false);
           eventBus.setError({
             title: 'Failed to list directory',
