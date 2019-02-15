@@ -144,7 +144,7 @@ export default {
 
       eventBus.setLoadingFlag(true);
       const uri = `/v1/_query?timestamp=1&strict=1&sort=${this.sortBy}&` +
-        `skip=${(pageId - 1) * this.pageSize}&limit=${this.pageSize + 1}`;
+        `skip=${(pageId - 1) * this.pageSize}&limit=${this.pageSize + 1}&core=1`;
       const body = this.queryString || {};
       const headers = {};
       if (this.queryString) {
@@ -192,7 +192,6 @@ export default {
 
     queryStringKeyEnter () {
       this.$emit('navToPage', 1, this.inputQueryString);
-      this.load();
     },
 
     experimentSelectChanged (id, selected) {

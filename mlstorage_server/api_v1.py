@@ -179,6 +179,8 @@ class ApiV1(object):
             web.get(url('/_getfile/{id}/{path}'), self.handle_getfile),
         ])
 
+    NOT_CORE_FIELDS = ['exc_info']
+
     @json_api
     async def handle_query(self, request):
         """
@@ -194,6 +196,15 @@ class ApiV1(object):
         skip = query_string_get(request, 'skip', 0, int)
         limit = query_string_get(request, 'limit', 10, int)
         sort_by = query_string_get(request, 'sort', None, str)
+        core_fields_only = query_string_get_switch(request, 'core', False)
+
+        if core_fields_only:
+            def filter_fields(doc):
+                return {k: v for k, v in doc.items()
+                        if k not in self.NOT_CORE_FIELDS}
+        else:
+            def filter_fields(doc):
+                return doc
 
         if sort_by:
             order = pymongo.ASCENDING
@@ -229,7 +240,7 @@ class ApiV1(object):
         try:
             async for doc in self.mldb.iter_docs(
                     filter_, skip, limit, sort_by=sort_by):
-                data.append(add_storage_dir(self.store_mgr, doc))
+                data.append(filter_fields(add_storage_dir(self.store_mgr, doc)))
             return data
         except Exception:
             getLogger(__name__).warning(
