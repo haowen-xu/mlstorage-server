@@ -25,7 +25,9 @@
     <div class="main-wrapper">
       <error-box></error-box>
       <router-view v-if="doc" :doc="doc"
-                   @update="updateDoc" @delete="deleteDoc"></router-view>
+                   @update="updateDoc"
+                   @delete="deleteDoc"
+                   @updateStorageSize="updateStorageSize"></router-view>
     </div>
   </div>
 </template>
@@ -122,6 +124,24 @@ export default {
             this.setDoc(null);
           });
       }
+    },
+
+    updateStorageSize () {
+      eventBus.setLoadingFlag(true);
+      axios.post(`/v1/_update_fs_size/${this.id}?timestamp=1&strict=1`, {})
+        .then((resp) => {
+          eventBus.setLoadingFlag(false);
+          eventBus.unsetError();
+          this.setDoc(resp.data);
+        })
+        .catch((error) => {
+          eventBus.setLoadingFlag(false);
+          eventBus.setError({
+            title: 'Failed to load the experiment',
+            message: error.response ? error.response.statusText : error
+          });
+          this.setDoc(null);
+        });
     },
 
     deleteDoc () {

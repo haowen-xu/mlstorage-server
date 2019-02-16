@@ -171,6 +171,7 @@ class ApiV1(object):
             web.post(url('/_query'), self.handle_query),
             web.post(url('/_create'), self.handle_create),
             web.post(url('/_update/{id}'), self.handle_update),
+            web.post(url('/_update_fs_size/{id}'), self.handle_update_fs_size),
             web.post(url('/_set_finished/{id}'), self.handle_set_finished),
 
             # GET handlers for files
@@ -344,6 +345,28 @@ class ApiV1(object):
         id = path_info_get(request, 'id', validator=validate_experiment_id)
         doc_fields = await request.json()
         await self.mldb.update(id, doc_fields)
+        return await get_doc_or_error(self.mldb, self.store_mgr, id)
+
+    @json_api
+    async def handle_update_fs_size(self, request):
+        """
+        API endpoint for updating the storage file system size.
+
+        Usage:
+            POST /v1/_update_fs_size/[id]
+
+        Returns:
+            The updated experiment document.
+        """
+        id = path_info_get(request, 'id', validator=validate_experiment_id)
+        doc = await get_doc_or_error(self.mldb, self.store_mgr, id,
+                                     error_class=web.HTTPNotFound)
+        root_path = doc['storage_dir']
+        if not os.path.isdir(root_path):
+            raise web.HTTPNotFound()
+        store = await self.store_mgr.open(id, doc)
+        fs_size = await store.compute_fs_size('/')
+        await self.mldb.update(id, {'storage_size': fs_size})
         return await get_doc_or_error(self.mldb, self.store_mgr, id)
 
     @json_api

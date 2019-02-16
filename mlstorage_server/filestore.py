@@ -241,6 +241,31 @@ class FileStore(object):
         return await self.manager.loop.run_in_executor(
             self.manager.executor, _sync_list_and_stat)
 
+    async def compute_fs_size(self, path):
+        """
+        Sum up the file system size of `path`.
+
+        Args:
+            path (str): The relative path within this :class:`FileStore`.
+
+        Returns:
+            int: The size of `path` in bytes.
+        """
+        def _sync_compute_fs_size(p):
+            st = os.stat(p, follow_symlinks=False)
+            if stat.S_ISDIR(st.st_mode):
+                return st.st_size + sum(
+                    _sync_compute_fs_size(os.path.join(p, name))
+                    for name in os.listdir(p)
+                )
+            else:
+                return st.st_size
+        path = validate_relpath(path)
+        abspath = (self.storage_dir if not path
+                   else self.storage_dir + os.sep + path)
+        return await self.manager.loop.run_in_executor(
+            self.manager.executor, lambda: _sync_compute_fs_size(abspath))
+
     async def isfile(self, path):
         """
         Check whether or not `path` is a file.

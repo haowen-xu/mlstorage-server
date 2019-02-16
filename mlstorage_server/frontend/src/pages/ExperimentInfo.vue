@@ -17,14 +17,14 @@
           <b-button-toolbar class="toolbar justify-content-end"
                             key-nav aria-label="Toolbar with button groups">
             <b-button-group v-if="doc && sortedWebUIKeys"
-                            class="mx-1">
+                            class="mx-1" size="sm">
               <b-button v-for="key in sortedWebUIKeys"
                         :key="`webui:${key}`"
                         :href="doc.webui[key]">
                 {{ key }}
               </b-button>
             </b-button-group>
-            <b-button-group class="mx-1">
+            <b-button-group class="mx-1" size="sm">
               <b-button variant="secondary" :href="`/v1/_tarball/${id}`">Download</b-button>
               <b-button v-b-modal.deleteConfirm variant="danger">Delete</b-button>
             </b-button-group>
@@ -134,9 +134,13 @@
               <th scope="row" class="fieldName">Work Dir</th>
               <td class="fieldValue">{{ doc.exc_info.work_dir }}</td>
             </tr>
-            <tr v-if="storageSize">
+            <tr>
               <th scope="row" class="fieldName">File Size</th>
-              <td class="fieldValue">{{ storageSize }}</td>
+              <td class="fieldValue">
+                <span v-if="storageSize" style="margin-right: 12px">{{ storageSize }}</span>
+                <b-button v-if="!storageSize || doc.status !== 'COMPLETED'"
+                          variant="secondary" size="sm" @click="updateStorageSize">Update</b-button>
+              </td>
             </tr>
             <tr v-if="doc.start_time">
               <th scope="row" class="fieldName">Start Time</th>
@@ -270,6 +274,10 @@ export default {
 
     deleteDoc () {
       this.$emit('delete');
+    },
+
+    updateStorageSize () {
+      this.$emit('updateStorageSize');
     },
 
     onNameChanged (name) {
