@@ -71,7 +71,11 @@
             <tr>
               <th scope="row" class="fieldName">Status</th>
               <td class="fieldValue">
-                <div :class="'text-' + statusClass">{{ statusText }}</div>
+                <editable-text :value="doc.status"
+                               :text-to-value="validateStatus"
+                               @change="onStatusChanged">
+                  <span :class="'text-' + statusClass">{{ statusText }}</span>
+                </editable-text>
               </td>
             </tr>
             <tr v-if="doc.error && doc.error.message">
@@ -138,7 +142,7 @@
               <th scope="row" class="fieldName">File Size</th>
               <td class="fieldValue">
                 <span v-if="storageSize" style="margin-right: 12px">{{ storageSize }}</span>
-                <b-button v-if="!storageSize || doc.status !== 'COMPLETED'"
+                <b-button v-if="!storageSize || (doc.status !== 'COMPLETED' && doc.status !== 'FAILED')"
                           variant="secondary" size="sm" @click="updateStorageSize">Update</b-button>
               </td>
             </tr>
@@ -290,6 +294,21 @@ export default {
       if (description !== this.doc.description) {
         this.updateDoc({'description': description});
       }
+    },
+
+    onStatusChanged (status) {
+      status = this.validateStatus(status);
+      if (status !== this.doc.status) {
+        this.updateDoc({'status': status});
+      }
+    },
+
+    validateStatus (status) {
+      const theStatus = (status || "").toUpperCase();
+      if (theStatus !== "RUNNING" && theStatus !== "FAILED" && theStatus !== "COMPLETED") {
+        throw "Invalid status: not one of 'RUNNING', 'FAILED', 'COMPLETED'.";
+      }
+      return theStatus;
     },
 
     tagsToText (tags) {

@@ -9,7 +9,7 @@ export function getExtendedStatus ({status, exit_code}, dateDiff) {
       return 'Maybe LOST';
     }
   }
-  if (status === 'COMPLETED' && exit_code !== 0) {
+  if (status === 'COMPLETED' && exit_code) {
     return 'FAILED';
   }
   return status;
