@@ -5,7 +5,10 @@
       <b-navbar-brand href="#">MLStorage</b-navbar-brand>
       <b-collapse is-nav id="nav_collapse">
         <b-navbar-nav>
-          <b-nav-item to="/" exact>Dashboard</b-nav-item>
+          <b-nav-item to="/" @click="navToMain" exact>All</b-nav-item>
+        </b-navbar-nav>
+        <b-navbar-nav>
+          <b-nav-item to="/?q=tags:star" @click="navToStarred" exact>Stared</b-nav-item>
         </b-navbar-nav>
         <b-dropdown-divider />
         <b-navbar-nav class="ml-auto">
@@ -45,17 +48,10 @@ export default {
 
   data() {
     return {
-      loadVersion: 0
+      loadVersion: 0,
+      pageId: Number.parseInt(this.$route.params.pageId || 1),
+      queryString: this.$route.query.q || ""
     };
-  },
-
-  computed: {
-    pageId () {
-      return Number.parseInt(this.$route.params.pageId || 1);
-    },
-    queryString () {
-      return this.$route.query.q || "";
-    }
   },
 
   methods: {
@@ -64,12 +60,25 @@ export default {
     },
 
     navToPage (pageId, queryString) {
-      const dst = { path: `/page/${pageId}` };
+      const dst = {};
+      if (pageId) {
+        dst['path'] = `/page/${pageId}`;
+      }
       if (queryString) {
         dst["query"] = { q: queryString };
       }
       this.$router.push(dst);
+      this.pageId = pageId || 1;
+      this.queryString = queryString || '';
       this.loadVersion += 1;
+    },
+
+    navToMain () {
+      this.navToPage(null, '');
+    },
+
+    navToStarred () {
+      this.navToPage(null, 'tags:star');
     }
   }
 };

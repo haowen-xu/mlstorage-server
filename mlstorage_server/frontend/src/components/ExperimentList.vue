@@ -37,13 +37,16 @@
                                     @showCheckboxChanged="showCheckboxChanged"
                                     @sortByChanged="sortByChanged"
                                     @deleteDocs="deleteDocs"
+                                    @starDocs="starDocs"
+                                    @unStarDocs="unStarDocs"
                                     class="top-tool-bar">
           </experiment-list-tool-bar>
 
           <b-list-group class="experiment-list">
             <experiment-list-entry v-for="doc in docs" :key="doc.id" :doc="doc"
                                    @selectChanged="experimentSelectChanged"
-                                   :show-checkbox="showCheckbox">
+                                   :show-checkbox="showCheckbox"
+                                   :selected-experiments="selectedExperiments">
             </experiment-list-entry>
           </b-list-group>
           <experiment-list-tool-bar v-if="this.docs && this.docs.length > 0"
@@ -57,6 +60,8 @@
                                     @showCheckboxChanged="showCheckboxChanged"
                                     @sortByChanged="sortByChanged"
                                     @deleteDocs="deleteDocs"
+                                    @starDocs="starDocs"
+                                    @unStarDocs="unStarDocs"
                                     class="bottom-tool-bar">
           </experiment-list-tool-bar>
         </div>
@@ -250,6 +255,56 @@ export default {
         };
 
         doDeleteOne(docIdList.length - 1);
+      }
+    },
+
+    starDocs () {
+      this.setDocsStar(true);
+    },
+
+    unStarDocs () {
+      this.setDocsStar(false);
+    },
+
+    setDocsStar (star) {
+      eventBus.setLoadingFlag(true);
+      if (this.selectedExperiments && this.selectedExperiments.length > 0) {
+        const docList = this.selectedExperiments.map(doc => doc);
+        const self = this;
+
+        const doStarOne = function (i) {
+          let tags = docList[i].tags || [];
+          if (star) {
+            if (tags.indexOf('star') < 0) {
+              tags.push('star');
+            }
+          } else {
+            tags = tags.filter(s => s !== 'star');
+          }
+
+          axios.post(`/v1/_update/${docList[i].id}`, {'tags': tags})
+            .then(() => {
+              if (i > 0) {
+                doStarOne(i - 1);
+              } else {
+                eventBus.setLoadingFlag(false);
+                eventBus.unsetError();
+                self.load();
+              }
+            })
+            .catch((error) => {
+              eventBus.setLoadingFlag(false);
+              eventBus.setError({
+                title: `Failed to ${star ? 'star' : 'un-star'} an experiment`,
+                message: error.response ? error.response.statusText : error
+              });
+              self.docs = null;
+              self.selectedExperiments = [];
+              self.showCheckbox = false;
+            });
+        };
+
+        doStarOne(docList.length - 1);
       }
     }
   }

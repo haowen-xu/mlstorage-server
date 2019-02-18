@@ -9,6 +9,12 @@
                   v-b-modal.deleteConfirm>
           Delete<span v-if="showCheckbox"> ({{selectedCount}})</span>
         </b-button>
+        <b-button v-if="showCheckbox" :disabled="!selectedCount" @click="starClicked">
+          Star<span v-if="showCheckbox"> ({{selectedCount}})</span>
+        </b-button>
+        <b-button v-if="showCheckbox" :disabled="!selectedCount" @click="unStarClicked">
+          UnStar<span v-if="showCheckbox"> ({{selectedCount}})</span>
+        </b-button>
       </b-button-group>
 
       <b-dropdown class="mx-1" size="sm" left text="Options">
@@ -107,6 +113,14 @@ export default {
       if (this.hasNextPage) {
         this.$emit('navToPage', this.pageId + 1);
       }
+    },
+
+    starClicked () {
+      this.$emit('starDocs');
+    },
+
+    unStarClicked() {
+      this.$emit('unStarDocs');
     }
   }
 }

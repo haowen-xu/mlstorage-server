@@ -4,6 +4,7 @@
       <h5 class="mb-1">
         <b-form-checkbox v-if="showCheckbox" @change="onSelectChanged" v-model="checked"
                          class="experimentCheckbox"></b-form-checkbox>
+        <v-icon name="star" class="star-icon" v-if="hasStarTag"></v-icon>
         <span>{{ doc.name }}</span>
       </h5>
       <small class="text-muted">{{ dateText }}</small>
@@ -17,8 +18,8 @@
         <div class="resultValue">{{ doc.result[key] }}</div>
       </div>
     </div>
-    <div v-if="doc.tags" class="tags">
-      <b-badge v-for="tag in doc.tags" :key="tag" :variant="statusClass || 'secondary'">{{ tag }}</b-badge>
+    <div v-if="filteredTags" class="tags">
+      <b-badge v-for="tag in filteredTags" :key="tag" :variant="statusClass || 'secondary'">{{ tag }}</b-badge>
     </div>
   </b-list-group-item>
 </template>
@@ -35,13 +36,16 @@ export default {
     showCheckbox: {
       type: Boolean,
       default: true
+    },
+    selectedExperiments: {
+      type: Array
     }
   },
 
   data () {
     return {
       expanded: false,
-      checked: false,
+      checked: (this.selectedExperiments && this.selectedExperiments.filter(d => d.id === this.doc.id).length > 0),
       dateText: null,
       dateDiff: 0,
       statusClass: null
@@ -92,18 +96,33 @@ export default {
       } else {
         return null;
       }
+    },
+
+    hasStarTag () {
+      return this.doc.tags && (this.doc.tags.indexOf('star') >= 0);
+    },
+
+    filteredTags () {
+      return this.doc.tags && this.doc.tags.filter(s => s !== 'star');
     }
   },
 
   watch: {
     doc (doc) {
       this.timeDiff.setTimestamp(doc.heartbeat);
+    },
+
+    selectedExperiments (value) {
+      this.checked = (value && value.filter(d => d.id === this.doc.id).length > 0);
     }
   }
 };
 </script>
 
 <style lang="scss" scoped>
+.star-icon {
+  margin-right: 5px;
+}
 .tags {
   span { margin-right: 5px; }
   span:last-child { margin-right: 0; }

@@ -10,7 +10,6 @@
             <th scope="col" class="shrink">Modify Time</th>
           </tr>
           <tr v-if="hasParentPath">
-            <!-- <td class="shrink"><octicon name="file-directory"></octicon></td> -->
             <td class="shrink"><v-icon name="folder"></v-icon></td>
             <td class="expand">
               <b-link :to="`/${id}/browse` + resolvePath('..', true)">..</b-link>
@@ -19,7 +18,6 @@
             <td class="shrink"></td>
           </tr>
           <tr v-else>
-            <!-- <td class="shrink"><octicon name="file-directory"></octicon></td> -->
             <td class="shrink"><v-icon name="folder"></v-icon></td>
             <td class="expand">
               <b-link :to="`/${id}/browse/`">.</b-link>
@@ -28,7 +26,6 @@
             <td class="shrink"></td>
           </tr>
           <tr v-for="item in sortedDirs" :key="item.name">
-            <!-- <td class="shrink"><octicon name="file-directory"></octicon></td> -->
             <td class="shrink"><v-icon name="folder"></v-icon></td>
             <td class="expand">
               <b-link :to="`/${id}/browse` + resolvePath(item.name, true)">{{ item.name }}</b-link>
@@ -37,7 +34,6 @@
             <td class="shrink">{{ formatDateTime(item.mtime) }}</td>
           </tr>
           <tr v-for="item in sortedFiles" :key="item.name">
-            <!-- <td class="shrink"><octicon name="file"></octicon></td> -->
             <td class="shrink"><v-icon name="file"></v-icon></td>
             <td class="expand">
               <a :href="`/v1/_getfile/${id}` + resolvePath(item.name)">{{ item.name }}</a>
