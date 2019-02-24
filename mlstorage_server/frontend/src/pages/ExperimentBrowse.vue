@@ -166,18 +166,6 @@ export default {
       return getOrder([getTypeOrder, getNameOrder]);
     },
 
-    filterItems (predicate) {
-      if (this.items) {
-        const sortArray = (
-          this.items
-            .map((item, index) => [item.name, index])
-            .filter((_, index) => predicate(this.items[index]))
-        );
-        sortArray.sort();
-        return sortArray.map((item) => this.items[item[1]]);
-      }
-    },
-
     formatDateTime (timestamp) {
       return formatDateTime(timestamp, 'YYYY-MM-DD H:mm:ss');
     },
