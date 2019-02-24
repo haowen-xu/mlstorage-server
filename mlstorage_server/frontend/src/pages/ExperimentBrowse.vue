@@ -2,46 +2,33 @@
   <b-container fluid style="padding-top: 15px">
     <b-row>
       <b-col>
-        <table v-if="items || hasParentPath" class="table table-hover table-sm">
-          <tr>
-            <th scope="col" class="shrink"></th>
-            <th scope="col" class="expand">Name</th>
-            <th scope="col" class="shrink">Size</th>
-            <th scope="col" class="shrink">Modify Time</th>
-          </tr>
-          <tr v-if="hasParentPath">
-            <td class="shrink"><v-icon name="folder"></v-icon></td>
-            <td class="expand">
-              <b-link :to="`/${id}/browse` + resolvePath('..', true)">..</b-link>
-            </td>
-            <td class="shrink"></td>
-            <td class="shrink"></td>
-          </tr>
-          <tr v-else>
-            <td class="shrink"><v-icon name="folder"></v-icon></td>
-            <td class="expand">
-              <b-link :to="`/${id}/browse/`">.</b-link>
-            </td>
-            <td class="shrink"></td>
-            <td class="shrink"></td>
-          </tr>
-          <tr v-for="item in sortedDirs" :key="item.name">
-            <td class="shrink"><v-icon name="folder"></v-icon></td>
-            <td class="expand">
-              <b-link :to="`/${id}/browse` + resolvePath(item.name, true)">{{ item.name }}</b-link>
-            </td>
-            <td class="shrink"></td>
-            <td class="shrink">{{ formatDateTime(item.mtime) }}</td>
-          </tr>
-          <tr v-for="item in sortedFiles" :key="item.name">
-            <td class="shrink"><v-icon name="file"></v-icon></td>
-            <td class="expand">
-              <a :href="`/v1/_getfile/${id}` + resolvePath(item.name)">{{ item.name }}</a>
-            </td>
-            <td class="shrink">{{ fileSize(item.size) }}</td>
-            <td class="shrink">{{ formatDateTime(item.mtime) }}</td>
-          </tr>
-        </table>
+        <b-button-toolbar class="toolbar justify-content-end"
+                          key-nav aria-label="Toolbar with button groups">
+          <b-button-group class="mx-1" size="sm">
+            <b-button :disabled="!hasParentPath" :to="`/${id}/browse` + resolvePath('..', true)">Cd Up</b-button>
+          </b-button-group>
+        </b-button-toolbar>
+
+        <b-table v-if="sortedItems" striped hover small class="file-table"
+                 :items="sortedItems" :fields="fields" primary-key="name" :sort-compare="sortCompare">
+          <template slot="isdir" slot-scope="data">
+            <v-icon v-if="data.value" name="folder"></v-icon>
+            <v-icon v-else name="file"></v-icon>
+          </template>
+
+          <template slot="name" slot-scope="data">
+            <b-link v-if="data.item.isdir" :to="`/${id}/browse` + resolvePath(data.value, true)">{{ data.value }}</b-link>
+            <a v-else :href="`/v1/_getfile/${id}` + resolvePath(data.value)">{{ data.value }}</a>
+          </template>
+
+          <template slot="size" slot-scope="data">
+            <span v-if="!data.item.isdir">{{ fileSize(data.value) }}</span>
+          </template>
+
+          <template slot="mtime" slot-scope="data">
+            {{ formatDateTime(data.value) }}
+          </template>
+        </b-table>
       </b-col>
     </b-row>
   </b-container>
@@ -54,10 +41,38 @@ import natsort from 'natsort';
 import eventBus from '../libs/eventBus';
 import { formatDateTime } from '../libs/utils';
 
+const sorter = natsort({ insensitive: true });
+
 export default {
   data () {
     return {
       items: null,
+      fields: [
+        {
+          key: 'isdir',
+          label: '',
+          sortable: false,
+          class: 'shrink',
+        },
+        {
+          key: 'name',
+          label: 'Name',
+          sortable: true,
+          class: 'expand',
+        },
+        {
+          key: 'size',
+          label: 'Size',
+          sortable: true,
+          class: 'shrink',
+        },
+        {
+          key: 'mtime',
+          label: 'Modify Time',
+          sortable: true,
+          class: 'shrink',
+        }
+      ],
       path: this.routePath
     };
   },
@@ -76,16 +91,16 @@ export default {
       return this.$route.params.id;
     },
 
+    sortedItems () {
+      if (!this.items)
+        return [];
+      const sortArray = this.items.map(a => a);
+      sortArray.sort((a, b) => -this.sortCompare(a, b));
+      return sortArray;
+    },
+
     hasParentPath () {
       return this.path !== '/';
-    },
-
-    sortedDirs () {
-      return this.filterItems((item) => item.isdir);
-    },
-
-    sortedFiles () {
-      return this.filterItems((item) => !item.isdir);
     },
 
     routePath () {
@@ -121,6 +136,36 @@ export default {
         });
     },
 
+    sortCompare (a, b, key) {
+      // field-specific order functions
+      const getTypeOrder = () => (
+        a.isdir ? (
+          b.isdir ? 0 : -1
+        ) : (
+          b.isdir ? 1 : 0
+        )
+      );
+      const getNameOrder = () => sorter(a.name, b.name);
+      const getSizeOrder = () => (a.size - b.size);
+      const getMtimeOrder = () => (a.mtime - b.mtime);
+      const getOrder = function (orderFunc) {
+        for (let i=0; i<orderFunc.length; ++i) {
+          const order = orderFunc[i]();
+          if (order !== 0)
+            return -order;
+        }
+        return 0;
+      };
+
+      // compute the orders according to 'key'.
+      if (key === 'size') {
+        return getOrder([getTypeOrder, getSizeOrder, getNameOrder]);
+      } else if (key === 'mtime') {
+        return getOrder([getTypeOrder, getMtimeOrder, getNameOrder]);
+      }
+      return getOrder([getTypeOrder, getNameOrder]);
+    },
+
     filterItems (predicate) {
       if (this.items) {
         const sortArray = (
@@ -128,7 +173,7 @@ export default {
             .map((item, index) => [item.name, index])
             .filter((_, index) => predicate(this.items[index]))
         );
-        sortArray.sort(natsort({ insensitive: true }));
+        sortArray.sort();
         return sortArray.map((item) => this.items[item[1]]);
       }
     },
@@ -167,15 +212,18 @@ export default {
 };
 </script>
 
-<style lang="scss" scoped>
-table {
-  tr:first-child {
-    th { border-top: none; }
+<style lang="scss">
+.toolbar {
+  margin-bottom: 10px;
+}
+.file-table {
+  table {
+    table-layout: fixed;
   }
-  th.shrink, td.shrink {
+  .shrink {
     white-space: nowrap;
   }
-  th.expand, td.expand {
+  .expand {
     width: 99%;
   }
 }
