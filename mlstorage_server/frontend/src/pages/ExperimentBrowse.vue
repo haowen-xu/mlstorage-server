@@ -2,15 +2,16 @@
   <b-container fluid style="padding-top: 15px">
     <b-row>
       <b-col>
-        <b-button-toolbar class="toolbar justify-content-end"
-                          key-nav aria-label="Toolbar with button groups">
+        <b-input-group class="toolbar">
+          <b-form-input v-model="itemFilter" type="text" size="sm"
+                        placeholder="Enter your filter"></b-form-input>
           <b-button-group class="mx-1" size="sm">
             <b-button :disabled="!hasParentPath" :to="`/${id}/browse` + resolvePath('..', true)">Cd Up</b-button>
           </b-button-group>
-        </b-button-toolbar>
+        </b-input-group>
 
-        <b-table v-if="sortedItems" striped hover small class="file-table"
-                 :items="sortedItems" :fields="fields" primary-key="name" :sort-compare="sortCompare">
+        <b-table v-if="filteredItems" striped hover small class="file-table"
+                 :items="filteredItems" :fields="fields" primary-key="name" :sort-compare="sortCompare">
           <template slot="isdir" slot-scope="data">
             <v-icon v-if="data.value" name="folder"></v-icon>
             <v-icon v-else name="file"></v-icon>
@@ -46,6 +47,7 @@ const sorter = natsort({ insensitive: true });
 export default {
   data () {
     return {
+      itemFilter: '',
       items: null,
       fields: [
         {
@@ -91,10 +93,16 @@ export default {
       return this.$route.params.id;
     },
 
-    sortedItems () {
+    filteredItems () {
       if (!this.items)
         return [];
-      const sortArray = this.items.map(a => a);
+      let sortArray = this.items;
+      if (this.itemFilter) {
+        sortArray = sortArray.filter(
+          s => s.name.toLowerCase().indexOf(this.itemFilter.toLowerCase()) >= 0);
+      } else {
+        sortArray = sortArray.map(s => s);
+      }
       sortArray.sort((a, b) => -this.sortCompare(a, b));
       return sortArray;
     },
@@ -120,12 +128,14 @@ export default {
       eventBus.setLoadingFlag(true);
       axios.get(`/v1/_listdir/${this.id}${path}`)
         .then((resp) => {
+          this.itemFilter = '';
           this.items = resp.data;
           this.path = path;
           eventBus.setLoadingFlag(false);
           eventBus.unsetError();
         })
         .catch((error) => {
+          this.itemFilter = '';
           this.items = null;
           this.path = path;
           eventBus.setLoadingFlag(false);
