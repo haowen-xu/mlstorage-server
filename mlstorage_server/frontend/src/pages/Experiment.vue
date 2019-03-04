@@ -5,7 +5,7 @@
       <b-navbar-brand href="#">MLStorage</b-navbar-brand>
       <b-collapse is-nav id="nav_collapse">
         <b-navbar-nav>
-          <b-nav-item to="/" exact>Dashboard</b-nav-item>
+          <b-nav-item :to="returnUri" exact>Dashboard</b-nav-item>
         </b-navbar-nav>
         <b-dropdown-divider />
         <b-navbar-nav>
@@ -37,6 +37,7 @@ import axios from 'axios';
 import DelayedProgressBar from '../components/DelayedProgressBar';
 import ErrorBox from '../components/ErrorBox';
 import eventBus from '../libs/eventBus';
+import userConfig from '../libs/userConfig';
 
 export default {
   components: {
@@ -45,8 +46,16 @@ export default {
   },
 
   data () {
+    let returnUri = "/";
+    if (userConfig.dashboard.lastPageId && userConfig.dashboard.lastPageId > 1) {
+      returnUri += `page/${userConfig.dashboard.lastPageId}`;
+    }
+    if (userConfig.dashboard.lastQueryString) {
+      returnUri += `?q=${userConfig.dashboard.lastQueryString}`;
+    }
     return {
-      doc: null
+      doc: null,
+      returnUri: returnUri
     };
   },
 

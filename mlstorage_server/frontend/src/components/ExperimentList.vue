@@ -137,6 +137,10 @@ export default {
   watch: {
     loadVersion () {
       this.load();
+    },
+
+    queryString (value) {
+      this.inputQueryString = value;
     }
   },
 

@@ -10,6 +10,9 @@
         <b-navbar-nav>
           <b-nav-item to="/?q=tags:star" @click="navToStarred" exact>Stared</b-nav-item>
         </b-navbar-nav>
+        <b-navbar-nav>
+          <b-nav-item to="/?q=status:running" @click="navToRunning" exact>Running</b-nav-item>
+        </b-navbar-nav>
         <b-dropdown-divider />
         <b-navbar-nav class="ml-auto">
           <b-nav-item @click="refresh">Reload</b-nav-item>
@@ -34,6 +37,7 @@ import DelayedProgressBar from '../components/DelayedProgressBar';
 import ErrorBox from '../components/ErrorBox';
 import ExperimentList from '../components/ExperimentList.vue';
 import eventBus from '../libs/eventBus';
+import userConfig from '../libs/userConfig';
 
 export default {
   components: {
@@ -47,10 +51,13 @@ export default {
   },
 
   data() {
+    const pageId = Number.parseInt(this.$route.params.pageId || 1);
+    const queryString = this.$route.query.q || "";
+    this.setLastVisit(pageId, queryString);
     return {
       loadVersion: 0,
-      pageId: Number.parseInt(this.$route.params.pageId || 1),
-      queryString: this.$route.query.q || ""
+      pageId: pageId,
+      queryString: queryString
     };
   },
 
@@ -59,7 +66,15 @@ export default {
       eventBus.callReloader();
     },
 
+    setLastVisit (pageId, queryString) {
+      userConfig.dashboard.lastPageId = pageId;
+      userConfig.dashboard.lastQueryString = queryString;
+    },
+
     navToPage (pageId, queryString) {
+      pageId = pageId || 1;
+      queryString = queryString || "";
+
       const dst = {};
       if (pageId) {
         dst['path'] = `/page/${pageId}`;
@@ -68,8 +83,9 @@ export default {
         dst["query"] = { q: queryString };
       }
       this.$router.push(dst);
-      this.pageId = pageId || 1;
-      this.queryString = queryString || '';
+      this.setLastVisit(pageId, queryString);
+      this.pageId = pageId;
+      this.queryString = queryString;
       this.loadVersion += 1;
     },
 
@@ -79,6 +95,10 @@ export default {
 
     navToStarred () {
       this.navToPage(null, 'tags:star');
+    },
+
+    navToRunning () {
+      this.navToPage(null, 'status:running');
     }
   }
 };
