@@ -25,7 +25,7 @@ export default {
   },
 
   computed: {
-    filteredItems () {
+    sortedItems () {
       const items = this.items || {};
       const boldKeys = this.boldKeys || [];
       const keys = Object.keys(items);
