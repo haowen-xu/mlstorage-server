@@ -78,6 +78,42 @@
                 </editable-text>
               </td>
             </tr>
+            <tr v-if="doc.exit_code !== undefined && doc.exit_code !== null">
+              <th scope="row" class="fieldName">Exit Code</th>
+              <td class="fieldValue">{{ doc.exit_code }}</td>
+            </tr>
+            <tr v-if="doc.start_time">
+              <th scope="row" class="fieldName">Start Time</th>
+              <td class="fieldValue">{{ startTime }}</td>
+            </tr>
+            <tr>
+              <th scope="row" class="fieldName">Last Update</th>
+              <td class="fieldValue">{{ dateText }}</td>
+            </tr>
+            <tr v-if="doc.storage_dir">
+              <th scope="row" class="fieldName">Storage Dir</th>
+              <td class="fieldValue">{{ doc.storage_dir }}</td>
+            </tr>
+            <tr v-if="doc.exc_info && doc.exc_info.work_dir">
+              <th scope="row" class="fieldName">Work Dir</th>
+              <td class="fieldValue">{{ doc.exc_info.work_dir }}</td>
+            </tr>
+            <tr>
+              <th scope="row" class="fieldName">File Size</th>
+              <td class="fieldValue">
+                <span v-if="storageSize" style="margin-right: 12px">{{ storageSize }}</span>
+                <b-button v-if="!storageSize || (doc.status !== 'COMPLETED' && doc.status !== 'FAILED')"
+                          variant="secondary" size="sm" @click="updateStorageSize">Update</b-button>
+              </td>
+            </tr>
+            <tr v-if="doc.exc_info && doc.exc_info.hostname">
+              <th scope="row" class="fieldName">Hostname</th>
+              <td class="fieldValue">{{ doc.exc_info.hostname }}</td>
+            </tr>
+            <tr v-if="doc.exc_info && doc.exc_info.pid">
+              <th scope="row" class="fieldName">PID</th>
+              <td class="fieldValue">{{ doc.exc_info.pid }}</td>
+            </tr>
             <tr v-if="doc.error && doc.error.message">
               <th scope="row" class="fieldName">Error</th>
               <td class="fieldValue">
@@ -125,42 +161,6 @@
                   </li>
                 </ul>
               </td>
-            </tr>
-            <tr v-if="doc.exit_code !== undefined && doc.exit_code !== null">
-              <th scope="row" class="fieldName">Exit Code</th>
-              <td class="fieldValue">{{ doc.exit_code }}</td>
-            </tr>
-            <tr v-if="doc.storage_dir">
-              <th scope="row" class="fieldName">Storage Dir</th>
-              <td class="fieldValue">{{ doc.storage_dir }}</td>
-            </tr>
-            <tr v-if="doc.exc_info && doc.exc_info.work_dir">
-              <th scope="row" class="fieldName">Work Dir</th>
-              <td class="fieldValue">{{ doc.exc_info.work_dir }}</td>
-            </tr>
-            <tr>
-              <th scope="row" class="fieldName">File Size</th>
-              <td class="fieldValue">
-                <span v-if="storageSize" style="margin-right: 12px">{{ storageSize }}</span>
-                <b-button v-if="!storageSize || (doc.status !== 'COMPLETED' && doc.status !== 'FAILED')"
-                          variant="secondary" size="sm" @click="updateStorageSize">Update</b-button>
-              </td>
-            </tr>
-            <tr v-if="doc.start_time">
-              <th scope="row" class="fieldName">Start Time</th>
-              <td class="fieldValue">{{ startTime }}</td>
-            </tr>
-            <tr>
-              <th scope="row" class="fieldName">Last Update</th>
-              <td class="fieldValue">{{ dateText }}</td>
-            </tr>
-            <tr v-if="doc.exc_info && doc.exc_info.hostname">
-              <th scope="row" class="fieldName">Hostname</th>
-              <td class="fieldValue">{{ doc.exc_info.hostname }}</td>
-            </tr>
-            <tr v-if="doc.exc_info && doc.exc_info.pid">
-              <th scope="row" class="fieldName">PID</th>
-              <td class="fieldValue">{{ doc.exc_info.pid }}</td>
             </tr>
             <tr v-if="doc.exc_info && doc.exc_info.env">
               <th scope="row" class="fieldName">Environ</th>
@@ -304,9 +304,9 @@ export default {
     },
 
     validateStatus (status) {
-      const theStatus = (status || "").toUpperCase();
-      if (theStatus !== "RUNNING" && theStatus !== "FAILED" && theStatus !== "COMPLETED") {
-        throw "Invalid status: not one of 'RUNNING', 'FAILED', 'COMPLETED'.";
+      const theStatus = (status || '').toUpperCase();
+      if (theStatus !== 'RUNNING' && theStatus !== 'FAILED' && theStatus !== 'COMPLETED') {
+        throw 'Invalid status: not one of \'RUNNING\', \'FAILED\', \'COMPLETED\'.';
       }
       return theStatus;
     },

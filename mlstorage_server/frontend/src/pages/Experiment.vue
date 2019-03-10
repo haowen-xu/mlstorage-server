@@ -46,7 +46,7 @@ export default {
   },
 
   data () {
-    let returnUri = "/";
+    let returnUri = '/';
     if (userConfig.dashboard.lastPageId && userConfig.dashboard.lastPageId > 1) {
       returnUri += `page/${userConfig.dashboard.lastPageId}`;
     }

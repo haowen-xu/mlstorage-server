@@ -90,11 +90,11 @@ export default {
     },
     queryString: {
       type: String,
-      default: ""
+      default: ''
     },
     loadVersion: {
       type: Number,
-      default: 0,
+      default: 0
     }
   },
 
@@ -146,8 +146,9 @@ export default {
 
   methods: {
     load () {
-      if (this.stopLoading)
+      if (this.stopLoading) {
         return;
+      }
 
       const pageId = this.pageId;
 

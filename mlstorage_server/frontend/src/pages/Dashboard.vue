@@ -50,9 +50,9 @@ export default {
     document.title = 'Dashboard - MLStorage';
   },
 
-  data() {
+  data () {
     const pageId = Number.parseInt(this.$route.params.pageId || 1);
-    const queryString = this.$route.query.q || "";
+    const queryString = this.$route.query.q || '';
     this.setLastVisit(pageId, queryString);
     return {
       loadVersion: 0,
@@ -73,14 +73,14 @@ export default {
 
     navToPage (pageId, queryString) {
       pageId = pageId || 1;
-      queryString = queryString || "";
+      queryString = queryString || '';
 
       const dst = {};
       if (pageId) {
         dst['path'] = `/page/${pageId}`;
       }
       if (queryString) {
-        dst["query"] = { q: queryString };
+        dst['query'] = { q: queryString };
       }
       this.$router.push(dst);
       this.setLastVisit(pageId, queryString);

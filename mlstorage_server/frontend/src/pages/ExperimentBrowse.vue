@@ -54,25 +54,25 @@ export default {
           key: 'isdir',
           label: '',
           sortable: false,
-          class: 'shrink',
+          class: 'shrink'
         },
         {
           key: 'name',
           label: 'Name',
           sortable: true,
-          class: 'expand',
+          class: 'expand'
         },
         {
           key: 'size',
           label: 'Size',
           sortable: true,
-          class: 'shrink',
+          class: 'shrink'
         },
         {
           key: 'mtime',
           label: 'Modify Time',
           sortable: true,
-          class: 'shrink',
+          class: 'shrink'
         }
       ],
       path: this.routePath
@@ -94,8 +94,9 @@ export default {
     },
 
     filteredItems () {
-      if (!this.items)
+      if (!this.items) {
         return [];
+      }
       let sortArray = this.items;
       if (this.itemFilter) {
         sortArray = sortArray.filter(
@@ -159,10 +160,11 @@ export default {
       const getSizeOrder = () => (a.size - b.size);
       const getMtimeOrder = () => (a.mtime - b.mtime);
       const getOrder = function (orderFunc) {
-        for (let i=0; i<orderFunc.length; ++i) {
+        for (let i = 0; i < orderFunc.length; ++i) {
           const order = orderFunc[i]();
-          if (order !== 0)
+          if (order !== 0) {
             return -order;
+          }
         }
         return 0;
       };

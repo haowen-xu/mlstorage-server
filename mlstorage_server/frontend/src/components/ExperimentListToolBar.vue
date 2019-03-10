@@ -119,11 +119,11 @@ export default {
       this.$emit('starDocs');
     },
 
-    unStarClicked() {
+    unStarClicked () {
       this.$emit('unStarDocs');
     }
   }
-}
+};
 </script>
 
 <style lang="scss" scoped>
