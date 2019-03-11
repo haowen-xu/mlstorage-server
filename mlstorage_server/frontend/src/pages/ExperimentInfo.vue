@@ -6,8 +6,8 @@
              ok-title="Delete It"
              @ok="deleteDoc">
       Really want to delete the experiment
-        <span v-if="doc.name">"{{ doc.name }}" ({{ doc.id }})</span>
-        <span v-else>"{{ doc.id }}"</span>
+        <span v-if="doc.name" class="word-wrap">"{{ doc.name }}" ({{ doc.id }})</span>
+        <span v-else class="word-wrap">"{{ doc.id }}"</span>
       ?
     </b-modal>
 
@@ -337,55 +337,57 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.toolbar {
-  margin-bottom: 10px;
-}
+  .toolbar {
+    margin-bottom: 10px;
+  }
 
-.info-table {
-  .id span {
-    margin-right: 5px;
-  }
-  tr:first-child {
-    th, td {
-      border-top: none;
-    }
-  }
-  .fieldName {
-    width: 20%;
-    min-width: 120px;
-    max-width: 160px;
-  }
-  .fieldValue {
-    font-family: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-  }
-  .arg-list {
-    pre {
-      margin-bottom: 0;
-    }
-    padding-left: 20px;
-    margin-bottom: 0;
-  }
-  .show-traceback-btn {
-    margin-left: 5px;
-  }
-  .traceback {
-    margin-top: 10px;
-    margin-bottom: 0;
-  }
-  .tags {
-    span {
+  .info-table {
+    .id span {
       margin-right: 5px;
     }
-    span:after {
-      content: ',';
+    tr:first-child {
+      th, td {
+        border-top: none;
+      }
     }
-    span:last-child {
-      margin-right: 0;
+    .fieldName {
+      width: 20%;
+      min-width: 120px;
+      max-width: 160px;
     }
-    span:last-child:after {
-      content: '';
+    .fieldValue {
+      font-family: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+    .arg-list {
+      pre {
+        margin-bottom: 0;
+      }
+      padding-left: 20px;
+      margin-bottom: 0;
+    }
+    .show-traceback-btn {
+      margin-left: 5px;
+    }
+    .traceback {
+      margin-top: 10px;
+      margin-bottom: 0;
+    }
+    .tags {
+      span {
+        margin-right: 5px;
+      }
+      span:after {
+        content: ',';
+      }
+      span:last-child {
+        margin-right: 0;
+      }
+      span:last-child:after {
+        content: '';
+      }
     }
   }
-
-}
+  .word-wrap {
+    word-wrap: break-word;
+  }
 </style>

@@ -8,8 +8,8 @@
       Really want to delete these experiments?
       <ul>
         <li v-for="doc in selectedExperiments" :key="doc.id">
-          <span v-if="doc.name">"{{ doc.name }}" ({{ doc.id }})</span>
-          <span v-else>"{{ doc.id }}"</span>
+          <span v-if="doc.name" class="word-wrap">"{{ doc.name }}" ({{ doc.id }})</span>
+          <span v-else class="word-wrap">"{{ doc.id }}"</span>
         </li>
       </ul>
     </b-modal>
@@ -317,10 +317,13 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.top-tool-bar, .bottom-tool-bar, .experiment-list {
-  margin: 10px 0;
-}
-.query-input {
-  margin-top: 10px;
-}
+  .top-tool-bar, .bottom-tool-bar, .experiment-list {
+    margin: 10px 0;
+  }
+  .query-input {
+    margin-top: 10px;
+  }
+  .word-wrap {
+    word-wrap: break-word;
+  }
 </style>

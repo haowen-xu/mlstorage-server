@@ -1,7 +1,7 @@
 <template>
   <b-list-group-item :variant="statusClass" class="flex-column align-items-start" @click="onItemClick" href="#">
     <div class="d-flex w-100 justify-content-between flex-md-row flex-column">
-      <h5 class="mb-1">
+      <h5 class="mb-1 word-wrap">
         <b-form-checkbox v-if="showCheckbox" @change="onSelectChanged" v-model="checked"
                          class="experimentCheckbox"></b-form-checkbox>
         <v-icon name="star" class="star-icon" v-if="hasStarTag"></v-icon>
@@ -120,30 +120,33 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.star-icon {
-  margin-right: 5px;
-}
-.tags {
-  span { margin-right: 5px; }
-  span:last-child { margin-right: 0; }
-}
-.results {
-  .resultItem {
-    padding-right: 10px;
-    .resultKey {
-      font-weight: bold;
-      padding-right: 5px;
+  .star-icon {
+    margin-right: 5px;
+  }
+  .tags {
+    span { margin-right: 5px; }
+    span:last-child { margin-right: 0; }
+  }
+  .results {
+    .resultItem {
+      padding-right: 10px;
+      .resultKey {
+        font-weight: bold;
+        padding-right: 5px;
+      }
+      .resultKey:after {
+        content: ':';
+      }
     }
-    .resultKey:after {
-      content: ':';
+    .resultItem:last-child {
+      padding-right: 0;
     }
   }
-  .resultItem:last-child {
-    padding-right: 0;
+  .experimentCheckbox {
+    display: inline;
+    margin-right: 5px;
   }
-}
-.experimentCheckbox {
-  display: inline;
-  margin-right: 5px;
-}
+  .word-wrap {
+    word-wrap: break-word;
+  }
 </style>
