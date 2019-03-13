@@ -5,9 +5,6 @@
         <b-input-group class="toolbar">
           <b-form-input v-model="itemFilter" type="text" size="sm"
                         placeholder="Enter your filter"></b-form-input>
-          <b-button-group class="mx-1" size="sm">
-            <b-button :disabled="!hasParentPath" :to="`/${id}/browse` + resolvePath('..', true)">Cd Up</b-button>
-          </b-button-group>
         </b-input-group>
 
         <b-table v-if="filteredItems" striped hover small class="file-table"
@@ -18,16 +15,16 @@
           </template>
 
           <template slot="name" slot-scope="data">
-            <b-link v-if="data.item.isdir" :to="`/${id}/browse` + resolvePath(data.value, true)">{{ data.value }}</b-link>
-            <a v-else :href="`/v1/_getfile/${id}` + resolvePath(data.value)">{{ data.value }}</a>
+            <b-link v-if="data.item.isdir" :to="`/${id}/browse` + resolvePathAndEncode(data.value, true)">{{ data.value }}</b-link>
+            <a v-else :href="`/v1/_getfile/${id}` + resolvePathAndEncode(data.value)">{{ data.value }}</a>
           </template>
 
           <template slot="size" slot-scope="data">
-            <span v-if="!data.item.isdir">{{ fileSize(data.value) }}</span>
+            <span v-if="!data.item.isdir && data.item.size !== null">{{ fileSize(data.value) }}</span>
           </template>
 
           <template slot="mtime" slot-scope="data">
-            {{ formatDateTime(data.value) }}
+            <span v-if="data.item.mtime !== null">{{ formatDateTime(data.value) }}</span>
           </template>
         </b-table>
       </b-col>
@@ -94,17 +91,22 @@ export default {
     },
 
     filteredItems () {
+      let sortArray = null;
       if (!this.items) {
-        return [];
-      }
-      let sortArray = this.items;
-      if (this.itemFilter) {
-        sortArray = sortArray.filter(
-          s => s.name.toLowerCase().indexOf(this.itemFilter.toLowerCase()) >= 0);
+        sortArray = [];
       } else {
-        sortArray = sortArray.map(s => s);
+        sortArray = this.items;
+        if (this.itemFilter) {
+          sortArray = sortArray.filter(
+            s => s.name.toLowerCase().indexOf(this.itemFilter.toLowerCase()) >= 0);
+        } else {
+          sortArray = sortArray.map(s => s);
+        }
+        sortArray.sort((a, b) => -this.sortCompare(a, b));
       }
-      sortArray.sort((a, b) => -this.sortCompare(a, b));
+      if (this.hasParentPath) {
+        sortArray = [{isParent: true, isdir: true, name: '..', mtime: null, size: null}].concat(sortArray);
+      }
       return sortArray;
     },
 
@@ -149,13 +151,24 @@ export default {
 
     sortCompare (a, b, key) {
       // field-specific order functions
-      const getTypeOrder = () => (
-        a.isdir ? (
-          b.isdir ? 0 : -1
-        ) : (
-          b.isdir ? 1 : 0
-        )
-      );
+      const getTypeOrder = () => {
+        if (a.isParent) {
+          return -1;
+        }
+        if (b.isParent) {
+          return 1;
+        }
+        if (a.isdir && b.isdir) {
+          return 0;
+        }
+        if (a.isdir) {
+          return -1;
+        }
+        if (b.isdir) {
+          return 1;
+        }
+        return 0;
+      };
       const getNameOrder = () => sorter(a.name, b.name);
       const getSizeOrder = () => (a.size - b.size);
       const getMtimeOrder = () => (a.mtime - b.mtime);
@@ -207,6 +220,10 @@ export default {
         ret += '/';
       }
       return ret;
+    },
+
+    resolvePathAndEncode (name, tailSlash) {
+      return this.resolvePath(name, tailSlash).split('/').map(encodeURIComponent).join('/');
     }
   }
 };

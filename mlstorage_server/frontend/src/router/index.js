@@ -3,6 +3,7 @@ import Router from 'vue-router';
 import Dashboard from '../pages/Dashboard';
 import Experiment from '../pages/Experiment';
 import ExperimentInfo from '../pages/ExperimentInfo';
+import ExperimentFigures from '../pages/ExperimentFigures';
 import ExperimentConsole from '../pages/ExperimentConsole';
 import ExperimentBrowse from '../pages/ExperimentBrowse';
 
@@ -26,6 +27,10 @@ const router = new Router({
         {
           path: '',
           component: ExperimentInfo
+        },
+        {
+          path: 'figures',
+          component: ExperimentFigures
         },
         {
           path: 'console',
