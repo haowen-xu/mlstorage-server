@@ -2,6 +2,7 @@ import asyncio
 import functools
 import json
 import math
+import mimetypes
 import os
 import pymongo
 import sys
@@ -60,6 +61,16 @@ def file_entry_to_dict(entry):
     }
     if not ret['isdir']:
         ret['size'] = entry.stat.st_size
+    return ret
+
+
+def zip_file_entry_to_dict(entry):
+    ret = {
+        'name': entry.name,
+        'zip_path': entry.zip_path,
+        'mtime': entry.mtime,
+        'size': entry.size
+    }
     return ret
 
 
@@ -177,7 +188,9 @@ class ApiV1(object):
             # GET handlers for files
             web.get(url('/_listdir/{id}'), self.handle_listdir),
             web.get(url('/_listdir/{id}/{path}'), self.handle_listdir),
+            web.get(url('/_listzip/{id}/{path}'), self.handle_listzip),
             web.get(url('/_getfile/{id}/{path}'), self.handle_getfile),
+            web.get(url('/_getzipentry/{id}/{path}'), self.handle_getzipentry),
         ])
 
     NOT_CORE_FIELDS = ['exc_info']
@@ -438,6 +451,24 @@ class ApiV1(object):
         return ret
 
     @json_api
+    async def handle_listzip(self, request):
+        """
+        API endpoint for listing a zip archive.
+
+        Usage:
+            GET /v1/_listzip/[id]/[path]
+
+        Returns:
+            The list of entries.
+        """
+        path = path_info_get(request, 'path', '')
+        store = await get_file_store(request, self.mldb, self.store_mgr)
+        ret = []
+        for e in (await store.list_zip_and_stat(path)):
+            ret.append(zip_file_entry_to_dict(e))
+        return ret
+
+    @json_api
     async def handle_getfile(self, request):
         """
         API endpoint for getting a file.
@@ -458,3 +489,30 @@ class ApiV1(object):
         if path.endswith('console.log'):
             headers['Content-Type'] = 'text/plain; charset=utf-8'
         return web.FileResponse(store.resolve_path(path), headers=headers)
+
+    @json_api
+    async def handle_getzipentry(self, request):
+        """
+        API endpoint for getting an entry in a zip archive.
+
+        Usage:
+            GET /v1/_getfile/[id]/[path]?name=[arc_name]
+
+        Returns:
+            The file content.
+        """
+        path = path_info_get(request, 'path', '')
+        arc_name = query_string_get(request, 'arc_name', '')
+        if not arc_name:
+            raise web.HTTPBadRequest()
+        store = await get_file_store(request, self.mldb, self.store_mgr)
+        if not (await store.isfile(path)):
+            raise web.HTTPNotFound()
+        content = await store.read_zip_entry(path, arc_name)
+        _type, _enc = mimetypes.guess_type(arc_name)
+        return web.Response(
+            body=content,
+            status=200,
+            content_type=_type or 'application/octet-stream',
+            charset=_enc or None
+        )

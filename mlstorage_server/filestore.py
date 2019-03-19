@@ -1,15 +1,17 @@
 import os
 import shutil
 import stat
+import zipfile
 from asyncio import AbstractEventLoop
 from concurrent.futures import Executor, ThreadPoolExecutor
+from datetime import datetime
 
 from aiofile import AIOFile
 
 from mlstorage_server.schema import validate_experiment_id, validate_relpath
 
 __all__ = [
-    'FileStoreManager', 'FileEntry', 'FileStore'
+    'FileStoreManager', 'FileEntry', 'ZipFileEntry', 'FileStore'
 ]
 
 
@@ -144,6 +146,39 @@ class FileEntry(object):
         return stat.S_ISDIR(self.stat.st_mode)
 
 
+class ZipFileEntry(object):
+    """
+    Class to wrap the name and stat result of a zip archive entry.
+    """
+
+    __slots__ = ('name', 'zip_path', 'info')
+
+    def __init__(self, name, zip_path, info):
+        """
+        Construct a new :class:`FileEntry`.
+
+        Args:
+            name (str): Name of the zip archive entry.
+            zip_path (str): Relative path of the zip archive entry under
+                its parent :class:`FileStore`.
+            info (zipfile.ZipInfo): Zip entry information object.
+        """
+        self.name = name
+        self.zip_path = zip_path
+        self.info = info
+
+    def __repr__(self):
+        return 'ZipFileEntry({!r}:{!r})'.format(self.name, self.zip_path)
+
+    @property
+    def mtime(self):
+        return datetime(*self.info.date_time).timestamp()
+
+    @property
+    def size(self):
+        return self.info.file_size
+
+
 class FileStore(object):
     """
     Storing the generated files of an experiment.
@@ -195,25 +230,6 @@ class FileStore(object):
         path = validate_relpath(path)
         return self.storage_dir + os.sep + path
 
-    async def listdir(self, path):
-        """
-        List the entries under `path`.
-
-        Args:
-            path (str): The relative path within this :class:`FileStore`.
-
-        Returns:
-            list[str]: The names of the entries.
-        """
-        def _sync_list():
-            ret = []
-            for name in os.listdir(abspath):
-                ret.append(name)
-            return ret
-        abspath = self.resolve_path(path)
-        return await self.manager.loop.run_in_executor(
-            self.manager.executor, _sync_list)
-
     async def listdir_and_stat(self, path):
         """
         List the entries under `path`, and get their stats.
@@ -240,6 +256,53 @@ class FileStore(object):
                    else self.storage_dir + os.sep + path)
         return await self.manager.loop.run_in_executor(
             self.manager.executor, _sync_list_and_stat)
+
+    async def list_zip_and_stat(self, path):
+        """
+        List the entries in zip archive `path`, and get their stats.
+
+        Args:
+            path (str): The relative path of the zip archive within this
+                :class:`FileStore`.
+
+        Returns:
+            list[FileEntry]: The entries in zip archive `path`.
+        """
+        def _sync_list_and_stat():
+            ret = []
+            with zipfile.ZipFile(abspath, 'r') as zf:
+                for zi in zf.infolist():
+                    assert(isinstance(zi, zipfile.ZipInfo))
+                    if not zi.filename.endswith('/'):
+                        ret.append(ZipFileEntry(zi.filename, path, zi))
+            return ret
+        path = validate_relpath(path)
+        abspath = (self.storage_dir if not path
+                   else self.storage_dir + os.sep + path)
+        return await self.manager.loop.run_in_executor(
+            self.manager.executor, _sync_list_and_stat)
+
+    async def read_zip_entry(self, path, arc_name):
+        """
+        Read the content of an entry `arc_name` in zip archive `path`.
+
+        Args:
+            path (str): The relative path of the zip archive within this
+                :class:`FileStore`.
+            arc_name (str): The archive entry name.
+
+        Returns:
+            bytes: The content of the zip entry.
+        """
+        def _read_entry():
+            with zipfile.ZipFile(abspath, 'r') as zf:
+                with zf.open(arc_name, 'r') as f:
+                    return f.read()
+        path = validate_relpath(path)
+        abspath = (self.storage_dir if not path
+                   else self.storage_dir + os.sep + path)
+        return await self.manager.loop.run_in_executor(
+            self.manager.executor, _read_entry)
 
     async def compute_fs_size(self, path):
         """
