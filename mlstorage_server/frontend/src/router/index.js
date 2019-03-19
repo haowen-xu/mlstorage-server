@@ -6,6 +6,7 @@ import ExperimentInfo from '../pages/ExperimentInfo';
 import ExperimentFigures from '../pages/ExperimentFigures';
 import ExperimentConsole from '../pages/ExperimentConsole';
 import ExperimentBrowse from '../pages/ExperimentBrowse';
+import ExperimentBrowseZip from '../pages/ExperimentBrowseZip';
 
 Vue.use(Router);
 
@@ -39,6 +40,10 @@ const router = new Router({
         {
           path: 'browse:path(/.*)?',
           component: ExperimentBrowse
+        },
+        {
+          path: 'browse_zip:path(/.*)?',
+          component: ExperimentBrowseZip
         }
       ]
     }

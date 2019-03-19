@@ -10,17 +10,14 @@
         <b-table v-if="filteredItems" striped hover small class="file-table"
                  :items="filteredItems" :fields="fields" primary-key="name" :sort-compare="sortCompare">
           <template slot="itemType" slot-scope="data">
-            <v-icon v-if="data.value === 'dir' || data.value === 'parent'" name="folder"></v-icon>
-            <v-icon v-else-if="data.value === 'zip'" name="file-archive"></v-icon>
+            <v-icon v-if="data.value === 'parent'" name="folder"></v-icon>
             <v-icon v-else name="file"></v-icon>
           </template>
 
           <template slot="name" slot-scope="data">
-            <b-link v-if="data.item.itemType === 'dir' || data.item.itemType === 'parent'"
-                    :to="`/${id}/browse` + resolvePathAndEncode(data.value, true)">{{ data.value }}</b-link>
-            <b-link v-else-if="data.item.itemType === 'zip'"
-                    :to="`/${id}/browse_zip` + resolvePathAndEncode(data.value, true)">{{ data.value }}</b-link>
-            <a v-else :href="`/v1/_getfile/${id}` + resolvePathAndEncode(data.value)"
+            <b-link v-if="data.item.parent"
+                    :to="`/${id}/browse${encodePath(parentPath)}`">{{ data.value }}</b-link>
+            <a v-else :href="`/v1/_getzipentry/${id}${path}?arc_name=${encodePath(data.value)}`"
                       target="_blank">{{ data.value }}</a>
           </template>
 
@@ -77,12 +74,12 @@ export default {
           class: 'shrink'
         }
       ],
-      path: this.routePath
+      path: this.normalizePath(this.$route.params.path || '')
     };
   },
 
   mounted () {
-    this.load(this.routePath);
+    this.load(this.path);
     eventBus.addReloader(this.load);
   },
 
@@ -109,24 +106,16 @@ export default {
         }
         sortArray.sort((a, b) => -this.sortCompare(a, b));
       }
-      if (this.hasParentPath) {
-        sortArray = [{itemType: 'parent', name: '..', mtime: null, size: null}].concat(sortArray);
-      }
+      sortArray = [{parent: true, name: '..', mtime: null, size: null}].concat(sortArray);
       return sortArray;
     },
 
-    hasParentPath () {
-      return this.path !== '/';
-    },
-
-    routePath () {
-      return this.normalizePath(this.$route.params.path || '');
-    }
-  },
-
-  watch: {
-    routePath (value) {
-      this.load(value);
+    parentPath () {
+      let parent = this.normalizePath(this.path + '/..');
+      if (!parent.endsWith('/')) {
+        parent += '/';
+      }
+      return parent;
     }
   },
 
@@ -134,19 +123,10 @@ export default {
     load (path) {
       path = path || this.path;
       eventBus.setLoadingFlag(true);
-      axios.get(`/v1/_listdir/${this.id}${path}`)
+      axios.get(`/v1/_listzip/${this.id}${path}`)
         .then((resp) => {
           this.itemFilter = '';
-          this.items = resp.data.filter(i => {
-            if (i.isdir) {
-              i.itemType = 'dir';
-            } else if (!i.isdir && i.name.length > 4 && i.name.substr(i.name.length - 4) === '.zip') {
-              i.itemType = 'zip';
-            } else {
-              i.itemType = 'file';
-            }
-            return i;
-          });
+          this.items = resp.data;
           this.path = path;
           eventBus.setLoadingFlag(false);
           eventBus.unsetError();
@@ -157,7 +137,7 @@ export default {
           this.path = path;
           eventBus.setLoadingFlag(false);
           eventBus.setError({
-            title: 'Failed to list directory',
+            title: 'Failed to list zip',
             message: error.response ? error.response.statusText : error
           });
         });
@@ -167,16 +147,10 @@ export default {
       // field-specific order functions
       const getTypeOrder = () => {
         function g (x) {
-          if (x.itemType === 'parent') {
+          if (x.parent) {
             return 0;
           }
-          if (x.itemType === 'dir') {
-            return 1;
-          }
-          if (x.itemType === 'zip') {
-            return 2;
-          }
-          return 3;
+          return 1;
         }
         return g(a) - g(b);
       };
@@ -225,16 +199,8 @@ export default {
       return '/' + ret.join('/');
     },
 
-    resolvePath (name, tailSlash) {
-      let ret = this.normalizePath(`${this.path}/${name}`);
-      if (tailSlash && !ret.endsWith('/')) {
-        ret += '/';
-      }
-      return ret;
-    },
-
-    resolvePathAndEncode (name, tailSlash) {
-      return this.resolvePath(name, tailSlash).split('/').map(encodeURIComponent).join('/');
+    encodePath (name) {
+      return name.split('/').map(encodeURIComponent).join('/');
     }
   }
 };

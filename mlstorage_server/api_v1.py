@@ -496,7 +496,7 @@ class ApiV1(object):
         API endpoint for getting an entry in a zip archive.
 
         Usage:
-            GET /v1/_getfile/[id]/[path]?name=[arc_name]
+            GET /v1/_getzipentry/[id]/[path]?arc_name=[arc_name]
 
         Returns:
             The file content.
