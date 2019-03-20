@@ -18,12 +18,19 @@
       <b-form-group id="sortByOptionsGroup" label="Sort By" label-for="sortByOptions">
         <b-form-select id="sortByOptions" size="sm" v-model="sortBy" :options="sortByOptions"></b-form-select>
       </b-form-group>
+      <b-form-group id="pageSizeOptionsGroup" label="Page Size" label-for="pageSizeOptions">
+        <b-form-select id="pageSizeOptions" size="sm" v-model="pageSize" :options="pageSizeOptions"></b-form-select>
+      </b-form-group>
       <b-form-group id="resultFilterGroup" label="Result Filter" label-for="resultFilter">
         <b-form-input id="resultFilter" size="sm" v-model="resultFilter" :state="resultFilterValidationState"></b-form-input>
         <div class="invalid-feedback">
           Invalid regex pattern.
         </div>
-        <b-button variant="secondary" size="sm" class="reset-filter-button" @click="resetResultFilter">Reset to default filter</b-button>
+        <b-button-group class="mx-1 set-filter-button-group" size="sm">
+          <b-button variant="secondary" @click="useDefaultFilter">Use default filter</b-button>
+          <b-button variant="primary" @click="showAllResults">Show all</b-button>
+        </b-button-group>
+        <div style="clear: both"></div>
       </b-form-group>
     </b-modal>
 
@@ -121,6 +128,12 @@ export default {
       sortByOptions: [
         { value: '-heartbeat', text: 'Last Update' },
         { value: '-start_time', text: 'Start Time' }
+      ],
+      pageSizeOptions: [
+        { value: 10, text: '10' },
+        { value: 20, text: '20' },
+        { value: 50, text: '50' },
+        { value: 100, text: '100' }
       ]
     };
   },
@@ -196,6 +209,11 @@ export default {
 
     sortBy (value) {
       userConfig.dashboard.sortBy = value;
+      this.load();
+    },
+
+    pageSize (value) {
+      userConfig.dashboard.pageSize = value;
       this.load();
     }
   },
@@ -363,14 +381,22 @@ export default {
       }
     },
 
-    resetResultFilter () {
+    useDefaultFilter () {
       this.resultFilter = defaultResultFilter;
+    },
+
+    showAllResults () {
+      this.resultFilter = '.*';
     }
   }
 };
 </script>
 
 <style lang="scss" scoped>
+  .main-container {
+    height: 100%;
+    overflow: auto;
+  }
   .top-tool-bar, .bottom-tool-bar, .experiment-list {
     margin: 10px 0;
   }
@@ -380,8 +406,7 @@ export default {
   .word-wrap {
     word-wrap: break-word;
   }
-  .reset-filter-button {
-    display: block;
-    margin-top: 10px;
+  .set-filter-button-group {
+    margin: 10px 0 0 0 !important;
   }
 </style>

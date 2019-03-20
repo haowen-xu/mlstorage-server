@@ -1,6 +1,6 @@
 <template>
   <div>
-    <b-container fluid style="padding-top: 15px">
+    <b-container fluid style="padding-top: 15px" class="main-container">
       <b-row>
         <b-col>
           <div v-for="item in items" :key="item.name" class="figure">
@@ -74,6 +74,10 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+  .main-container {
+    height: 100%;
+    overflow: auto;
+  }
   .word-wrap {
     word-wrap: break-word;
   }

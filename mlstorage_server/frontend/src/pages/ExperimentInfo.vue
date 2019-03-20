@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="main-container">
     <b-modal id="deleteConfirm"
              title="Confirm to Delete"
              ok-variant="danger"
@@ -357,6 +357,11 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+  .main-container {
+    height: 100%;
+    overflow: auto;
+  }
+
   .toolbar {
     margin-bottom: 10px;
   }

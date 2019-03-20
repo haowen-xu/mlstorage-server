@@ -105,7 +105,8 @@ export default {
 </script>
 
 <style>
-.main-wrapper {
-  padding-top: 56px;
-}
+  .main-wrapper {
+    padding-top: 56px;
+    height: 100%;
+  }
 </style>

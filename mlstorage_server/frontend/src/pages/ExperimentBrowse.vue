@@ -1,5 +1,5 @@
 <template>
-  <b-container fluid style="padding-top: 15px">
+  <b-container fluid style="padding-top: 15px" class="main-container">
     <b-row>
       <b-col>
         <b-input-group class="toolbar">
@@ -241,18 +241,22 @@ export default {
 </script>
 
 <style lang="scss">
-.toolbar {
-  margin-bottom: 10px;
-}
-.file-table {
-  table {
-    table-layout: fixed;
+  .main-container {
+    height: 100%;
+    overflow: auto;
   }
-  .shrink {
-    white-space: nowrap;
+  .toolbar {
+    margin-bottom: 10px;
   }
-  .expand {
-    width: 99%;
+  .file-table {
+    table {
+      table-layout: fixed;
+    }
+    .shrink {
+      white-space: nowrap;
+    }
+    .expand {
+      width: 99%;
+    }
   }
-}
 </style>

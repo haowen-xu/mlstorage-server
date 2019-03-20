@@ -1,7 +1,7 @@
 <template>
   <div class="log-wrapper bg-dark">
     <div v-if="logs" class="log-content">
-      <pre class="text-light">{{ logs }}</pre>
+      <pre class="text-light"><code>{{ formattedLogs }}</code></pre>
     </div>
   </div>
 </template>
@@ -76,6 +76,10 @@ export default {
   computed: {
     id () {
       return this.$route.params.id;
+    },
+
+    formattedLogs () {
+      return this.logs;
     }
   },
 
@@ -159,11 +163,21 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.log-wrapper {
-  height: 100%;
-  overflow: auto;
-}
-.log-content {
-  padding: 15px;
-}
+  .log-wrapper {
+    height: 100%;
+    width: 100%;
+    overflow: auto;
+  }
+  pre {
+    font-family: "PT Mono", "Consolas", monospace;
+    width: 100%;
+    padding: 15px;
+    overflow: unset;
+    white-space: pre-wrap;       /* Since CSS 2.1 */
+    word-wrap: break-word;       /* Internet Explorer 5.5+ */
+
+    p {
+      margin: 0 0 5px 0;
+    }
+  }
 </style>

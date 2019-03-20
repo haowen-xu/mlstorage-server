@@ -12,8 +12,7 @@ module.exports = {
     assetsPublicPath: '/static/',
     proxyTable: {
       '/v1/': {
-        // target: 'http://mlserver.ipwx.me:7980/',
-        target: 'http://localhost:5000/',
+        target: 'http://mlserver.ipwx.me:7980/',
         changeOrigin: true,
         pathRewrite: {
           '^/v1': '/v1'
