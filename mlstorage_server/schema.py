@@ -108,6 +108,11 @@ def validate_experiment_doc(doc):
         validate_key(exc_info, 'env', validate_env_dict)
         return exc_info
 
+    def validate_control_port(control_port):
+        require_dict(control_port)
+        validate_key(control_port, 'kill', str)
+        return control_port
+
     if not isinstance(doc, dict):
         raise ValueError('Experiment doc must be a dict: got {!r}'.
                          format(doc))
@@ -130,6 +135,7 @@ def validate_experiment_doc(doc):
     validate_key(doc, 'config', require_dict)
     validate_key(doc, 'default_config', require_dict)
     validate_key(doc, 'result', require_dict)
+    validate_key(doc, 'control_port', validate_control_port)
 
     return doc
 

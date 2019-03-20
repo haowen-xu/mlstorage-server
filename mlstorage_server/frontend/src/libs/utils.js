@@ -31,3 +31,5 @@ export function statusToBootstrapClass ({status, exit_code}, dateDiff, completeC
 export function formatDateTime (timestamp, format) {
   return moment.utc(timestamp * 1000).local().format(format || 'LLL');
 }
+
+export const defaultResultFilter = '^((.*_)?(n?ll|loss|acc|lb)(_.*)?|epoch|eta|lr)$';

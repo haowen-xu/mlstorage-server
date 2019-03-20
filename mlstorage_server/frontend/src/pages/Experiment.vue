@@ -28,6 +28,7 @@
       <router-view v-if="doc" :doc="doc"
                    @update="updateDoc"
                    @delete="deleteDoc"
+                   @kill="killDoc"
                    @updateStorageSize="updateStorageSize"></router-view>
     </div>
   </div>
@@ -169,6 +170,23 @@ export default {
             message: error.response ? error.response.statusText : error
           });
           this.setDoc(null);
+        });
+    },
+
+    killDoc () {
+      eventBus.setLoadingFlag(true);
+      axios.post(`/v1/_kill/${this.id}`)
+        .then(() => {
+          eventBus.setLoadingFlag(false);
+          eventBus.unsetError();
+          setTimeout(() => this.load(), 1000);
+        })
+        .catch((error) => {
+          eventBus.setLoadingFlag(false);
+          eventBus.setError({
+            title: 'Failed to kill the experiment',
+            message: error.response ? error.response.statusText : error
+          });
         });
     }
   }

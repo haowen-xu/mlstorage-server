@@ -17,10 +17,9 @@
         </b-button>
       </b-button-group>
 
-      <b-dropdown class="mx-1" size="sm" left text="Options">
-        <b-dropdown-header size="sm">Sort By</b-dropdown-header>
-        <b-form-select size="sm" v-model="theSortBy" :options="sortByOptions" class="select-input"></b-form-select>
-      </b-dropdown>
+      <b-button-group class="mx-1" size="sm">
+        <b-button v-b-modal.dashBoardOption>Options</b-button>
+      </b-button-group>
     </b-button-toolbar>
 
     <b-button-toolbar v-if="hasNavigation"
@@ -57,20 +56,12 @@ export default {
     },
     selectedExperiments: {
       type: Array
-    },
-    sortBy: {
-      type: String
     }
   },
 
   data () {
     return {
-      myShowCheckbox: this.showCheckbox,
-      theSortBy: this.sortBy,
-      sortByOptions: [
-        { value: '-heartbeat', text: 'Last Update' },
-        { value: '-start_time', text: 'Start Time' }
-      ]
+      myShowCheckbox: this.showCheckbox
     };
   },
 
@@ -99,6 +90,14 @@ export default {
 
     theSortBy (value) {
       this.$emit('sortByChanged', value);
+    },
+
+    resultFilter (value) {
+      this.theResultFilter = value;
+    },
+
+    resultFilterRegExp (value) {
+      this.$emit('resultFilterChanged', value);
     }
   },
 
@@ -132,8 +131,6 @@ export default {
 }
 .operation-bar {
   float: left;
-  .select-input {
-  }
 }
 .navigation-bar {
   float: right;

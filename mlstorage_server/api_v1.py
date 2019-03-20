@@ -9,7 +9,7 @@ import sys
 from json import JSONDecodeError
 from logging import getLogger
 
-from aiohttp import web
+from aiohttp import web, ClientSession
 
 from mlstorage_server.query import (build_filter_dict_from_query_string,
                                     BadQueryError)
@@ -184,6 +184,7 @@ class ApiV1(object):
             web.post(url('/_update/{id}'), self.handle_update),
             web.post(url('/_update_fs_size/{id}'), self.handle_update_fs_size),
             web.post(url('/_set_finished/{id}'), self.handle_set_finished),
+            web.post(url('/_kill/{id}'), self.handle_kill),
 
             # GET handlers for files
             web.get(url('/_listdir/{id}'), self.handle_listdir),
@@ -399,6 +400,45 @@ class ApiV1(object):
             raise web.HTTPBadRequest()
         await self.mldb.set_finished(id, doc_fields['status'], doc_fields)
         return await get_doc_or_error(self.mldb, self.store_mgr, id)
+
+    @json_api
+    async def handle_kill(self, request):
+        """
+        API endpoint for killing the process of an experiment.
+
+        Usage:
+            POST /v1/_kill/[id] {}
+
+        Returns:
+            {}
+        """
+        id = path_info_get(request, 'id', validator=validate_experiment_id)
+        doc = await self.mldb.get(id)
+        control_port = doc.get('control_port', {})
+        kill_uri = control_port.get('kill', None)
+        if kill_uri is None:
+            raise web.HTTPNotImplemented()
+        try:
+            async with ClientSession() as session:
+                async with session.request('POST',
+                                           kill_uri,
+                                           headers=request.headers,
+                                           data=request.content) as r:
+                    response = web.StreamResponse(status=r.status,
+                                                  reason=r.reason,
+                                                  headers=r.headers)
+                    await response.prepare(request)
+                    while True:
+                        chunk = await r.content.read()
+                        if not chunk:
+                            break
+                        await response.write(chunk)
+        except Exception:
+            getLogger(__name__).info(
+                'Failed to kill task %s', id, exc_info=True)
+            raise web.HTTPInternalServerError()
+        else:
+            return response
 
     @json_api
     async def handle_delete(self, request):

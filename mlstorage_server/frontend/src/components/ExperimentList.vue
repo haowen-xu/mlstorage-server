@@ -14,6 +14,19 @@
       </ul>
     </b-modal>
 
+    <b-modal id="dashBoardOption" hide-header hide-footer>
+      <b-form-group id="sortByOptionsGroup" label="Sort By" label-for="sortByOptions">
+        <b-form-select id="sortByOptions" size="sm" v-model="sortBy" :options="sortByOptions"></b-form-select>
+      </b-form-group>
+      <b-form-group id="resultFilterGroup" label="Result Filter" label-for="resultFilter">
+        <b-form-input id="resultFilter" size="sm" v-model="resultFilter" :state="resultFilterValidationState"></b-form-input>
+        <div class="invalid-feedback">
+          Invalid regex pattern.
+        </div>
+        <b-button variant="secondary" size="sm" class="reset-filter-button" @click="resetResultFilter">Reset to default filter</b-button>
+      </b-form-group>
+    </b-modal>
+
     <b-row>
       <b-col>
         <b-form-input v-model="inputQueryString"
@@ -32,10 +45,8 @@
                                     :has-prev-page="hasPrevPage"
                                     :show-checkbox="showCheckbox"
                                     :selected-experiments="selectedExperiments"
-                                    :sort-by="sortBy"
                                     @navToPage="navToPage"
                                     @showCheckboxChanged="showCheckboxChanged"
-                                    @sortByChanged="sortByChanged"
                                     @deleteDocs="deleteDocs"
                                     @starDocs="starDocs"
                                     @unStarDocs="unStarDocs"
@@ -43,7 +54,7 @@
           </experiment-list-tool-bar>
 
           <b-list-group class="experiment-list">
-            <experiment-list-entry v-for="doc in docs" :key="doc.id" :doc="doc"
+            <experiment-list-entry v-for="doc in docsWithFilteredResult" :key="doc.id" :doc="doc"
                                    @selectChanged="experimentSelectChanged"
                                    :show-checkbox="showCheckbox"
                                    :selected-experiments="selectedExperiments">
@@ -55,10 +66,8 @@
                                     :has-prev-page="hasPrevPage"
                                     :show-checkbox="showCheckbox"
                                     :selected-experiments="selectedExperiments"
-                                    :sort-by="sortBy"
                                     @navToPage="navToPage"
                                     @showCheckboxChanged="showCheckboxChanged"
-                                    @sortByChanged="sortByChanged"
                                     @deleteDocs="deleteDocs"
                                     @starDocs="starDocs"
                                     @unStarDocs="unStarDocs"
@@ -76,6 +85,7 @@ import eventBus from '../libs/eventBus';
 import userConfig from '../libs/userConfig';
 import ExperimentListToolBar from './ExperimentListToolBar';
 import ExperimentListEntry from './ExperimentListEntry';
+import { defaultResultFilter } from '../libs/utils';
 
 export default {
   components: {
@@ -106,7 +116,12 @@ export default {
       selectedExperiments: [],
       showCheckbox: false,
       sortBy: userConfig.dashboard.sortBy,
-      inputQueryString: this.queryString
+      resultFilter: userConfig.dashboard.resultFilter,
+      inputQueryString: this.queryString,
+      sortByOptions: [
+        { value: '-heartbeat', text: 'Last Update' },
+        { value: '-start_time', text: 'Start Time' }
+      ]
     };
   },
 
@@ -131,6 +146,38 @@ export default {
 
     selectedCount () {
       return this.selectedExperiments.size;
+    },
+
+    docsWithFilteredResult () {
+      let docs = this.docs;
+      if (docs && this.resultFilterRegExp) {
+        docs = this.docs.map(doc => {
+          const ret = {};
+          Object.assign(ret, doc);
+          if (doc.result) {
+            ret.result = {};
+            for (const key in doc.result) {
+              if (doc.result.hasOwnProperty(key) && this.resultFilterRegExp.test(key)) {
+                ret.result[key] = doc.result[key];
+              }
+            }
+          }
+          return ret;
+        });
+      }
+      return docs;
+    },
+
+    resultFilterRegExp () {
+      try {
+        return new RegExp(this.resultFilter, 'i');
+      } catch (e) {
+        return null;
+      }
+    },
+
+    resultFilterValidationState () {
+      return this.resultFilterRegExp !== null ? null : false;
     }
   },
 
@@ -141,6 +188,15 @@ export default {
 
     queryString (value) {
       this.inputQueryString = value;
+    },
+
+    resultFilter (value) {
+      userConfig.dashboard.resultFilter = value;
+    },
+
+    sortBy (value) {
+      userConfig.dashboard.sortBy = value;
+      this.load();
     }
   },
 
@@ -192,12 +248,6 @@ export default {
 
     navToPage (pageId) {
       this.$emit('navToPage', pageId, this.queryString);
-    },
-
-    sortByChanged (sortBy) {
-      this.sortBy = sortBy;
-      userConfig.dashboard.sortBy = sortBy;
-      this.load();
     },
 
     queryStringKeyEnter () {
@@ -311,6 +361,10 @@ export default {
 
         doStarOne(docList.length - 1);
       }
+    },
+
+    resetResultFilter () {
+      this.resultFilter = defaultResultFilter;
     }
   }
 };
@@ -325,5 +379,9 @@ export default {
   }
   .word-wrap {
     word-wrap: break-word;
+  }
+  .reset-filter-button {
+    display: block;
+    margin-top: 10px;
   }
 </style>

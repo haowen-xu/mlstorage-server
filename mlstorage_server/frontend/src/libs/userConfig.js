@@ -1,4 +1,5 @@
 import store from 'store';
+import { defaultResultFilter } from './utils';
 
 /** Make a config proxy from the specified object. */
 function makeConfig (obj) {
@@ -27,7 +28,8 @@ class UserConfig {
       sortBy: '-heartbeat',
       pageSize: 10,
       lastQueryString: '',
-      lastPageId: 1
+      lastPageId: 1,
+      resultFilter: defaultResultFilter
     });
   }
 

@@ -6,8 +6,19 @@
              ok-title="Delete It"
              @ok="deleteDoc">
       Really want to delete the experiment
-        <span v-if="doc.name" class="word-wrap">"{{ doc.name }}" ({{ doc.id }})</span>
-        <span v-else class="word-wrap">"{{ doc.id }}"</span>
+      <span v-if="doc.name" class="word-wrap">"{{ doc.name }}" ({{ doc.id }})</span>
+      <span v-else class="word-wrap">"{{ doc.id }}"</span>
+      ?
+    </b-modal>
+
+    <b-modal id="killConfirm"
+             title="Confirm to Kill"
+             ok-variant="warning"
+             ok-title="Kill It"
+             @ok="killDoc">
+      Really want to kill the experiment
+      <span v-if="doc.name" class="word-wrap">"{{ doc.name }}" ({{ doc.id }})</span>
+      <span v-else class="word-wrap">"{{ doc.id }}"</span>
       ?
     </b-modal>
 
@@ -26,6 +37,7 @@
             </b-button-group>
             <b-button-group class="mx-1" size="sm">
               <b-button variant="secondary" :href="`/v1/_tarball/${id}`">Download</b-button>
+              <b-button v-if="canKill" v-b-modal.killConfirm variant="warning">Kill</b-button>
               <b-button v-b-modal.deleteConfirm variant="danger">Delete</b-button>
             </b-button-group>
             <div style="clear:both"></div>
@@ -259,6 +271,10 @@ export default {
         return filesize(this.doc.storage_size);
       }
       return null;
+    },
+
+    canKill () {
+      return this.doc.status === 'RUNNING' && this.doc.control_port && this.doc.control_port.kill;
     }
   },
 
@@ -278,6 +294,10 @@ export default {
 
     deleteDoc () {
       this.$emit('delete');
+    },
+
+    killDoc () {
+      this.$emit('kill');
     },
 
     updateStorageSize () {
