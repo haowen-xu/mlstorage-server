@@ -32,4 +32,4 @@ export function formatDateTime (timestamp, format) {
   return moment.utc(timestamp * 1000).local().format(format || 'LLL');
 }
 
-export const defaultResultFilter = '^((.*_)?(n?ll|bpd|loss|acc|lb)(_.*)?|epoch|eta|lr)$';
+export const defaultResultFilter = '^(?!__)((.*_)?(n?ll|bpd|loss|acc|lb)(_.*)?|epoch|eta|lr)$';
