@@ -114,8 +114,7 @@
               <th scope="row" class="fieldName">File Size</th>
               <td class="fieldValue">
                 <span v-if="storageSize" style="margin-right: 12px">{{ storageSize }}</span>
-                <b-button v-if="!storageSize || (doc.status !== 'COMPLETED' && doc.status !== 'FAILED')"
-                          variant="secondary" size="sm" @click="updateStorageSize">Update</b-button>
+                <b-button variant="secondary" size="sm" @click="updateStorageSize">Update</b-button>
               </td>
             </tr>
             <tr v-if="doc.exc_info && doc.exc_info.hostname">

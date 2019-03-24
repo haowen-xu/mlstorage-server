@@ -52,11 +52,13 @@
                                     :has-prev-page="hasPrevPage"
                                     :show-checkbox="showCheckbox"
                                     :selected-experiments="selectedExperiments"
+                                    :select-all-mode="selectAllMode"
                                     @navToPage="navToPage"
                                     @showCheckboxChanged="showCheckboxChanged"
                                     @deleteDocs="deleteDocs"
                                     @starDocs="starDocs"
                                     @unStarDocs="unStarDocs"
+                                    @selectAllClicked="selectAllClicked"
                                     class="top-tool-bar">
           </experiment-list-tool-bar>
 
@@ -73,11 +75,13 @@
                                     :has-prev-page="hasPrevPage"
                                     :show-checkbox="showCheckbox"
                                     :selected-experiments="selectedExperiments"
+                                    :select-all-mode="selectAllMode"
                                     @navToPage="navToPage"
                                     @showCheckboxChanged="showCheckboxChanged"
                                     @deleteDocs="deleteDocs"
                                     @starDocs="starDocs"
                                     @unStarDocs="unStarDocs"
+                                    @selectAllClicked="selectAllClicked"
                                     class="bottom-tool-bar">
           </experiment-list-tool-bar>
         </div>
@@ -122,6 +126,7 @@ export default {
       hasNextPage: true,
       selectedExperiments: [],
       showCheckbox: false,
+      selectAllMode: '+',
       sortBy: userConfig.dashboard.sortBy,
       resultFilter: userConfig.dashboard.resultFilter,
       inputQueryString: this.queryString,
@@ -387,6 +392,16 @@ export default {
 
     showAllResults () {
       this.resultFilter = '.*';
+    },
+
+    selectAllClicked () {
+      if (this.selectAllMode === '+') {
+        this.selectedExperiments = this.docs.map(doc => doc);
+        this.selectAllMode = '-';
+      } else {
+        this.selectedExperiments = [];
+        this.selectAllMode = '+';
+      }
     }
   }
 };

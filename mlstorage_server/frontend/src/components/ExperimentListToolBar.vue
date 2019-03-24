@@ -5,6 +5,9 @@
     <b-button-toolbar class="operation-bar">
       <b-button-group class="mx-1" size="sm">
         <b-button :pressed.sync="myShowCheckbox">Select</b-button>
+        <b-button variant="primary" v-if="showCheckbox" @click="selectAllClicked">
+          <span>{{ selectAllMode }}</span>All
+        </b-button>
         <b-button variant="danger" v-if="showCheckbox" :disabled="!selectedCount"
                   v-b-modal.deleteConfirm>
           Delete<span v-if="showCheckbox"> ({{selectedCount}})</span>
@@ -56,6 +59,9 @@ export default {
     },
     selectedExperiments: {
       type: Array
+    },
+    selectAllMode: {
+      type: String
     }
   },
 
@@ -84,18 +90,6 @@ export default {
       this.$emit('showCheckboxChanged', value);
     },
 
-    sortBy (value) {
-      this.theSortBy = value;
-    },
-
-    theSortBy (value) {
-      this.$emit('sortByChanged', value);
-    },
-
-    resultFilter (value) {
-      this.theResultFilter = value;
-    },
-
     resultFilterRegExp (value) {
       this.$emit('resultFilterChanged', value);
     }
@@ -120,6 +114,10 @@ export default {
 
     unStarClicked () {
       this.$emit('unStarDocs');
+    },
+
+    selectAllClicked () {
+      this.$emit('selectAllClicked');
     }
   }
 };
