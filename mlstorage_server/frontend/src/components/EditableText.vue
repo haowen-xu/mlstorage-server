@@ -29,7 +29,7 @@ export default {
       default: null
     },
     valueToText: {
-      default: () => (s) => s
+      default: () => (s) => `${s}`
     },
     textToValue: {
       default: () => (v) => v

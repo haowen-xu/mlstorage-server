@@ -300,6 +300,10 @@ export default {
     },
 
     showCheckboxChanged (showCheckbox) {
+      if (showCheckbox) {
+        this.selectAllMode = '+';
+        this.selectedExperiments = [];
+      }
       this.showCheckbox = showCheckbox;
     },
 

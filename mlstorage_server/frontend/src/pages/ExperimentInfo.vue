@@ -90,9 +90,15 @@
                 </editable-text>
               </td>
             </tr>
-            <tr v-if="doc.exit_code !== undefined && doc.exit_code !== null">
+            <tr>
               <th scope="row" class="fieldName">Exit Code</th>
-              <td class="fieldValue">{{ doc.exit_code }}</td>
+              <td class="fieldValue">
+                <editable-text :value="doc.exit_code"
+                               :text-to-value="validateExitCode"
+                               @change="onExitCodeChanged">
+                  {{ doc.exit_code }}
+                </editable-text>
+              </td>
             </tr>
             <tr v-if="doc.start_time">
               <th scope="row" class="fieldName">Start Time</th>
@@ -315,6 +321,14 @@ export default {
       }
     },
 
+    validateStatus (status) {
+      const theStatus = (status || '').toUpperCase();
+      if (theStatus !== 'RUNNING' && theStatus !== 'FAILED' && theStatus !== 'COMPLETED') {
+        throw 'Invalid status: not one of \'RUNNING\', \'FAILED\', \'COMPLETED\'.';
+      }
+      return theStatus;
+    },
+
     onStatusChanged (status) {
       status = this.validateStatus(status);
       if (status !== this.doc.status) {
@@ -322,12 +336,15 @@ export default {
       }
     },
 
-    validateStatus (status) {
-      const theStatus = (status || '').toUpperCase();
-      if (theStatus !== 'RUNNING' && theStatus !== 'FAILED' && theStatus !== 'COMPLETED') {
-        throw 'Invalid status: not one of \'RUNNING\', \'FAILED\', \'COMPLETED\'.';
+    validateExitCode (code) {
+      return Number.parseInt(code);
+    },
+
+    onExitCodeChanged (exitCode) {
+      exitCode = this.validateExitCode(exitCode);
+      if (exitCode !== this.doc.exit_code) {
+        this.updateDoc({'exit_code': exitCode});
       }
-      return theStatus;
     },
 
     tagsToText (tags) {
