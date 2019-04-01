@@ -57,9 +57,12 @@ class WebUI(object):
             web.get(url('/{id}'), self.handle_add_slash),
             web.get(url('/{id}/'), self.handle_index),
             web.get(url('/{id}/console'), self.handle_index),
+            web.get(url('/{id}/figures'), self.handle_index),
+            web.get(url('/{id}/reports'), self.handle_index),
             web.get(url('/{id}/browse'), self.handle_add_slash),
             web.get(url('/{id}/browse/'), self.handle_index),
             web.get(url('/{id}/browse/{path}'), self.handle_index),
+            web.get(url('/{id}/browse_zip/{path}'), self.handle_index),
         ])
         app.router.add_static(
             '/static', os.path.join(self.assets_dir, 'static'))
