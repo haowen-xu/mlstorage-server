@@ -10,6 +10,7 @@
         <b-dropdown-divider />
         <b-navbar-nav>
           <b-nav-item :to="`/${id}/`" exact>Experiment</b-nav-item>
+          <b-nav-item :to="`/${id}/reports`" exact>Report</b-nav-item>
           <b-nav-item :to="`/${id}/figures`" exact>Figures</b-nav-item>
           <b-nav-item :to="`/${id}/console`" exact>Console</b-nav-item>
           <b-nav-item :to="`/${id}/browse/`">Browse</b-nav-item>

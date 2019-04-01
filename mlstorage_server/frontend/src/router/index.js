@@ -4,6 +4,7 @@ import Dashboard from '../pages/Dashboard';
 import Experiment from '../pages/Experiment';
 import ExperimentInfo from '../pages/ExperimentInfo';
 import ExperimentFigures from '../pages/ExperimentFigures';
+import ExperimentReports from '../pages/ExperimentReports';
 import ExperimentConsole from '../pages/ExperimentConsole';
 import ExperimentBrowse from '../pages/ExperimentBrowse';
 import ExperimentBrowseZip from '../pages/ExperimentBrowseZip';
@@ -32,6 +33,10 @@ const router = new Router({
         {
           path: 'figures',
           component: ExperimentFigures
+        },
+        {
+          path: 'reports',
+          component: ExperimentReports
         },
         {
           path: 'console',
