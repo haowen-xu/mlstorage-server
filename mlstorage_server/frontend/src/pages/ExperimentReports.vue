@@ -5,7 +5,13 @@
 </template>
 
 <script>
+import eventBus from '../libs/eventBus';
+
 export default {
+  mounted () {
+    eventBus.setLoadingFlag(false);
+    eventBus.unsetError();
+  },
   computed: {
     id () {
       return this.$route.params.id;
