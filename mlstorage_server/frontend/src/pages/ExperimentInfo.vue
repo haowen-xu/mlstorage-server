@@ -337,6 +337,9 @@ export default {
     },
 
     validateExitCode (code) {
+      if (!Number.isInteger(code) && !`${code}`.match(/^\d+$/)) {
+        throw 'Invalid exit code: not an integer.';
+      }
       return Number.parseInt(code);
     },
 
