@@ -34,6 +34,8 @@ def validate_experiment_id(id):
         ValueError: If the specified `run_id` is not a valid id.
     """
     try:
+        if isinstance(id, dict) and '$oid' in id:
+            id = id['$oid']
         if not isinstance(id, ObjectId):
             id = ObjectId(str(id))
         return id
@@ -58,6 +60,8 @@ def validate_experiment_doc(doc):
         return [str(t) for t in value]
 
     def validate_datetime(value):
+        if isinstance(value, dict) and '$date' in value:
+            value = value['$date']
         if isinstance(value, str):
             value = datetime.fromisoformat(value)
         elif isinstance(value, (int, float)):
