@@ -28,10 +28,10 @@ def to_database_experiment_doc(experiment_doc):
 
 
 def from_database_experiment_doc(experiment_doc):
-    """Rename "_id" to "id" in `experiment_doc`."""
+    """Copy "_id" to "id" in `experiment_doc`."""
     if experiment_doc is not None:
         if '_id' in experiment_doc:
-            experiment_doc['id'] = experiment_doc.pop('_id')
+            experiment_doc['id'] = experiment_doc['_id']
     return experiment_doc
 
 

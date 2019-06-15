@@ -120,7 +120,12 @@ def validate_experiment_doc(doc):
     if not isinstance(doc, dict):
         raise ValueError('Experiment doc must be a dict: got {!r}'.
                          format(doc))
-    validate_key(doc, 'id', validate_experiment_id)
+
+    if '_id' in doc:
+        validate_key(doc, '_id', validate_experiment_id)
+    if 'id' in doc:
+        validate_key(doc, 'id', validate_experiment_id)
+
     validate_key(doc, 'parent_id', validate_experiment_id)
     validate_key(doc, 'name', str)
     validate_key(doc, 'description', str)
