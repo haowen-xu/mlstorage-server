@@ -526,7 +526,7 @@ class ApiV1(object):
         headers = {}
         # Special treatment for console.log: force it to be recognized
         # as plain, UTF-8 text.
-        if path.endswith('console.log'):
+        if path.endswith('.log'):
             headers['Content-Type'] = 'text/plain; charset=utf-8'
         return web.FileResponse(store.resolve_path(path), headers=headers)
 

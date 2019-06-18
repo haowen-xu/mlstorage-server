@@ -172,12 +172,12 @@
             <tr v-if="doc.args">
               <th scope="row" class="fieldName">Args</th>
               <td class="fieldValue">
-                <ul class="arg-list">
-                  <li v-if="Array.isArray(doc.args)" v-for="(arg, index) in doc.args" :key="index">
+                <ul class="arg-list" v-if="Array.isArray(doc.args)" >
+                  <li v-for="(arg, index) in doc.args" :key="index">
                     <pre>{{ arg }}</pre>
                   </li>
-                  <pre v-else>{{ arg }}</pre>
                 </ul>
+                <pre v-else style="margin-bottom: 0; font-size: 16px">{{ doc.args }}</pre>
               </td>
             </tr>
             <tr v-if="doc.exc_info && doc.exc_info.env">
