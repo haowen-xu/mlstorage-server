@@ -173,9 +173,10 @@
               <th scope="row" class="fieldName">Args</th>
               <td class="fieldValue">
                 <ul class="arg-list">
-                  <li v-for="(arg, index) in doc.args" :key="index">
+                  <li v-if="Array.isArray(doc.args)" v-for="(arg, index) in doc.args" :key="index">
                     <pre>{{ arg }}</pre>
                   </li>
+                  <pre v-else>{{ arg }}</pre>
                 </ul>
               </td>
             </tr>
