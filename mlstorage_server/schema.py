@@ -59,6 +59,12 @@ def validate_experiment_doc(doc):
     def str_list(value):
         return [str(t) for t in value]
 
+    def str_or_str_list(value):
+        if isinstance(value, (str, bytes)):
+            return str(value)
+        else:
+            return [str(t) for t in value]
+
     def validate_datetime(value):
         if isinstance(value, dict) and '$date' in value:
             value = value['$date']
@@ -140,7 +146,7 @@ def validate_experiment_doc(doc):
     validate_key(doc, 'exc_info', validate_exc_info)
     validate_key(doc, 'webui', require_dict)
     validate_key(doc, 'fingerprint', str)
-    validate_key(doc, 'args', str_list)
+    validate_key(doc, 'args', str_or_str_list)
     validate_key(doc, 'config', require_dict)
     validate_key(doc, 'default_config', require_dict)
     validate_key(doc, 'result', require_dict)
