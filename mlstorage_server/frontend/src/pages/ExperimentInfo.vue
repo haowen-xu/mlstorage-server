@@ -123,6 +123,12 @@
                 <b-button variant="secondary" size="sm" @click="updateStorageSize">Update</b-button>
               </td>
             </tr>
+            <tr>
+              <th scope="row" class="fieldName">Inode Count</th>
+              <td class="fieldValue">
+                <span v-if="doc.storage_inode" style="margin-right: 12px">{{ doc.storage_inode }}</span>
+              </td>
+            </tr>
             <tr v-if="doc.exc_info && doc.exc_info.hostname">
               <th scope="row" class="fieldName">Hostname</th>
               <td class="fieldValue">{{ doc.exc_info.hostname }}</td>
@@ -145,6 +151,12 @@
                 </div>
               </td>
             </tr>
+            <tr v-if="doc.progress">
+              <th scope="row" class="fieldName">Progress</th>
+              <td class="fieldValue">
+                <dict-table :items="doc.progress" />
+              </td>
+            </tr>
             <tr v-if="doc.result">
               <th scope="row" class="fieldName">Result</th>
               <td class="fieldValue">
@@ -159,10 +171,10 @@
                 </b-button>
                 <dict-table v-if="showDefaultConfig && mergedConfig"
                             :items="mergedConfig"
-                            :boldKeys="configKeys"
+                            :boldKeys="overridedConfigKeys"
                             style="margin-top: 5px"/>
-                <dict-table v-else-if="doc.config"
-                            :items="doc.config"
+                <dict-table v-else-if="overridedConfig"
+                            :items="overridedConfig"
                             style="margin-top: 5px"/>
               </td>
               <td v-else class="fieldValue">
@@ -268,8 +280,23 @@ export default {
       return obj;
     },
 
-    configKeys () {
-      return Object.keys(this.doc.config || {});
+    overridedConfig () {
+      if (this.doc.config && !this.doc.default_config) {
+        return this.doc.config;
+      } else {
+        let obj = {};
+        for (const key in this.doc.config) {
+          if (this.doc.config.hasOwnProperty(key) &&
+            this.doc.config[key] !== this.doc.default_config[key]) {
+            obj[key] = this.doc.config[key];
+          }
+        }
+        return obj;
+      }
+    },
+
+    overridedConfigKeys () {
+      return Object.keys(this.overridedConfig);
     },
 
     storageSize () {

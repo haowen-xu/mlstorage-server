@@ -12,8 +12,12 @@
     <div v-if="doc.description">
       {{ doc.description }}
     </div>
-    <div v-if="doc.result" class="results d-flex justify-content-start flex-wrap">
-      <div v-for="key in sortedResultKeys" :key="key" class="resultItem d-flex justify-content-start">
+    <div v-if="this.doc.progress || this.doc.result" class="results d-flex justify-content-start flex-wrap">
+      <div v-for="key in sortedProgressKeys" :key="'progress.' + key" class="resultItem d-flex justify-content-start">
+        <div class="resultKey">{{ key }}</div>
+        <div class="resultValue">{{ doc.progress[key] }}</div>
+      </div>
+      <div v-for="key in sortedResultKeys" :key="'result.' + key" class="resultItem d-flex justify-content-start">
         <div class="resultKey">{{ key }}</div>
         <div class="resultValue">{{ doc.result[key] }}</div>
       </div>
@@ -88,13 +92,22 @@ export default {
   },
 
   computed: {
+    sortedProgressKeys () {
+      if (this.doc.progress) {
+        const progressKeys = Object.keys(this.doc.progress);
+        return ['epoch', 'step', 'eta'].filter(s => progressKeys.indexOf(s) >= 0);
+      } else {
+        return [];
+      }
+    },
+
     sortedResultKeys () {
       if (this.doc.result) {
         const keys = Object.keys(this.doc.result);
         keys.sort();
         return keys;
       } else {
-        return null;
+        return [];
       }
     },
 
