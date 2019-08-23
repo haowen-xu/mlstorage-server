@@ -209,7 +209,7 @@ class ApiV1(object):
             List of experiment documents.
         """
         skip = query_string_get(request, 'skip', 0, int)
-        limit = query_string_get(request, 'limit', 10, int)
+        limit = query_string_get(request, 'limit', None, int)
         sort_by = query_string_get(request, 'sort', None, str)
         core_fields_only = query_string_get_switch(request, 'core', False)
 
