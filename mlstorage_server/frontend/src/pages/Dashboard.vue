@@ -1,8 +1,8 @@
 <template>
   <div>
     <b-navbar toggleable="md" type="dark" variant="dark" fixed="top">
-      <b-navbar-toggle target="nav_collapse"></b-navbar-toggle>
       <b-navbar-brand href="#">MLStorage</b-navbar-brand>
+      <b-navbar-toggle target="nav_collapse"></b-navbar-toggle>
       <b-collapse is-nav id="nav_collapse">
         <b-navbar-nav>
           <b-nav-item to="/" @click="navToMain" exact>All</b-nav-item>
@@ -13,7 +13,6 @@
         <b-navbar-nav>
           <b-nav-item to="/?q=status:running" @click="navToRunning" exact>Running</b-nav-item>
         </b-navbar-nav>
-        <b-dropdown-divider />
         <b-navbar-nav class="ml-auto">
           <b-nav-item @click="refresh">Reload</b-nav-item>
         </b-navbar-nav>

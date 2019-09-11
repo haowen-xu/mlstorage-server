@@ -7,7 +7,6 @@
         <b-navbar-nav>
           <b-nav-item :to="returnUri" exact>Dashboard</b-nav-item>
         </b-navbar-nav>
-        <b-dropdown-divider />
         <b-navbar-nav>
           <b-nav-item :to="`/${id}/`" exact>Experiment</b-nav-item>
           <b-nav-item :to="`/${id}/reports`" exact>Report</b-nav-item>
@@ -15,7 +14,6 @@
           <b-nav-item :to="`/${id}/console`" exact>Console</b-nav-item>
           <b-nav-item :to="`/${id}/browse/`">Browse</b-nav-item>
         </b-navbar-nav>
-        <b-dropdown-divider />
         <b-navbar-nav class="ml-auto">
           <b-nav-item @click="refresh">Reload</b-nav-item>
         </b-navbar-nav>

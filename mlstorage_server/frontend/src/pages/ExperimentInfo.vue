@@ -221,6 +221,19 @@ import TimeDiff from '../libs/timeDiff';
 import eventBus from '../libs/eventBus';
 import { statusToBootstrapClass, getExtendedStatus } from '../libs/utils';
 
+function processConfigDict (c, target = null, prefix = '') {
+  const ret = target || {};
+  for (const key in c) {
+    const val = c[key];
+    if ((typeof val) === 'object' && val !== null && !Array.isArray(val)) {
+      processConfigDict(val, ret, `${prefix}${key}.`);
+    } else {
+      ret[`${prefix}${key}`] = val;
+    }
+  }
+  return ret;
+};
+
 export default {
   components: {
     EditableText,
@@ -274,21 +287,29 @@ export default {
       return moment.utc(this.doc.start_time * 1000).local().format('LLL');
     },
 
+    config () {
+      return processConfigDict(this.doc.config || {});
+    },
+
+    defaultConfig () {
+      return processConfigDict(this.doc.default_config || {});
+    },
+
     mergedConfig () {
-      let obj = Object.assign({}, this.doc.default_config || {});
-      obj = Object.assign(obj, this.doc.config || {});
+      let obj = Object.assign({}, this.defaultConfig);
+      obj = Object.assign(obj, this.config);
       return obj;
     },
 
     overridedConfig () {
-      if (this.doc.config && !this.doc.default_config) {
-        return this.doc.config;
+      if (this.config && !this.defaultConfig) {
+        return this.config;
       } else {
         let obj = {};
-        for (const key in this.doc.config) {
-          if (this.doc.config.hasOwnProperty(key) &&
-            this.doc.config[key] !== this.doc.default_config[key]) {
-            obj[key] = this.doc.config[key];
+        for (const key in this.config) {
+          if (this.config.hasOwnProperty(key) &&
+                this.config[key] !== this.defaultConfig[key]) {
+            obj[key] = this.config[key];
           }
         }
         return obj;
