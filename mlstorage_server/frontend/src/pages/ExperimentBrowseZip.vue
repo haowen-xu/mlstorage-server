@@ -9,23 +9,23 @@
 
         <b-table v-if="filteredItems" striped hover small class="file-table"
                  :items="filteredItems" :fields="fields" primary-key="name" :sort-compare="sortCompare">
-          <template slot="itemType" slot-scope="data">
+          <template v-slot:cell(itemType)="data">
             <v-icon v-if="data.value === 'parent'" name="folder"></v-icon>
             <v-icon v-else name="file"></v-icon>
           </template>
 
-          <template slot="name" slot-scope="data">
+          <template v-slot:cell(name)="data">
             <b-link v-if="data.item.parent"
                     :to="`/${id}/browse${encodePath(parentPath)}`">{{ data.value }}</b-link>
             <a v-else :href="`/v1/_getzipentry/${id}${path}?arc_name=${encodePath(data.value)}`"
                       target="_blank">{{ data.value }}</a>
           </template>
 
-          <template slot="size" slot-scope="data">
+          <template v-slot:cell(size)="data">
             <span v-if="data.item.size !== null">{{ fileSize(data.value) }}</span>
           </template>
 
-          <template slot="mtime" slot-scope="data">
+          <template v-slot:cell(mtime)="data">
             <span v-if="data.item.mtime !== null">{{ formatDateTime(data.value) }}</span>
           </template>
         </b-table>
