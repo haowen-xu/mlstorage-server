@@ -95,7 +95,7 @@ export default {
     sortedProgressKeys () {
       if (this.doc.progress) {
         const progressKeys = Object.keys(this.doc.progress);
-        return ['epoch', 'step', 'eta'].filter(s => progressKeys.indexOf(s) >= 0);
+        return ['stage', 'epoch', 'batch', 'step', 'eta'].filter(s => progressKeys.indexOf(s) >= 0);
       } else {
         return [];
       }
@@ -149,6 +149,9 @@ export default {
       }
       .resultKey:after {
         content: ':';
+      }
+      .resultStage {
+        font-weight: bold;
       }
     }
     .resultItem:last-child {
