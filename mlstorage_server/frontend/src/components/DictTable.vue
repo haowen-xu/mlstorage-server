@@ -13,6 +13,7 @@
 
 <script>
 import natsort from 'natsort';
+import { formatMetricValue } from '../libs/utils';
 
 export default {
   props: {
@@ -31,7 +32,7 @@ export default {
       const keys = Object.keys(items);
       keys.sort(natsort({ insensitive: true }));
       return keys.map((k) => (
-        { key: k, value: items[k], bold: boldKeys.includes(k) }
+        { key: k, value: formatMetricValue(items[k]), bold: boldKeys.includes(k) }
       ));
     }
   }

@@ -12,14 +12,16 @@
     <div v-if="doc.description">
       {{ doc.description }}
     </div>
-    <div v-if="this.doc.progress || this.doc.result" class="results d-flex justify-content-start flex-wrap">
-      <div v-for="key in sortedProgressKeys" :key="'progress.' + key" class="resultItem d-flex justify-content-start">
-        <div class="resultKey">{{ key }}</div>
-        <div class="resultValue">{{ doc.progress[key] }}</div>
+    <div v-if="progressItems || doc.result" class="results d-flex justify-content-start flex-wrap">
+      <div v-for="progressItem in progressItems" :key="'progress.' + progressItem.key"
+           class="resultItem d-flex justify-content-start">
+        <div class="resultKey">{{ progressItem.key }}</div>
+        <div class="resultValue">{{ progressItem.value }}</div>
       </div>
-      <div v-for="key in sortedResultKeys" :key="'result.' + key" class="resultItem d-flex justify-content-start">
-        <div class="resultKey">{{ key }}</div>
-        <div class="resultValue">{{ doc.result[key] }}</div>
+      <div v-for="metricItem in metricItems" :key="'result.' + metricItem.key"
+           class="resultItem d-flex justify-content-start">
+        <div class="resultKey">{{ metricItem.key }}</div>
+        <div class="resultValue">{{ metricItem.value }}</div>
       </div>
     </div>
     <div v-if="filteredTags" class="tags">
@@ -30,7 +32,7 @@
 
 <script>
 import TimeDiff from '../libs/timeDiff';
-import { statusToBootstrapClass } from '../libs/utils';
+import { statusToBootstrapClass, formatMetricValue } from '../libs/utils';
 
 export default {
   props: {
@@ -92,20 +94,40 @@ export default {
   },
 
   computed: {
-    sortedProgressKeys () {
+    progressItems () {
       if (this.doc.progress) {
-        const progressKeys = Object.keys(this.doc.progress);
-        return ['stage', 'epoch', 'batch', 'step', 'eta'].filter(s => progressKeys.indexOf(s) >= 0);
+        const progress = this.doc.progress;
+        const totalEpochs = progress.total_epochs || progress.max_epoch;
+        const totalBatches = progress.total_batches || progress.max_batch;
+        const totalSteps = progress.total_steps || progress.max_step;
+        const keys = ['stage', 'epoch', 'batch', 'step', 'eta'].filter(s => progress[s] ? s : null);
+        return keys.map(key => {
+          let value = progress[key];
+          // if `key` is a counter, then append the maximnum value to the counter
+          if (key === 'epoch' && totalEpochs) {
+            value = `${value}/${totalEpochs}`;
+          } else if (key === 'batch' && totalBatches) {
+            value = `${value}/${totalBatches}`;
+          } else if (key === 'step' && totalSteps) {
+            value = `${value}/${totalSteps}`;
+          }
+          return {key: key, value: value};
+        });
       } else {
         return [];
       }
     },
 
-    sortedResultKeys () {
+    metricItems () {
       if (this.doc.result) {
         const keys = Object.keys(this.doc.result);
         keys.sort();
-        return keys;
+        return keys.map(key => {
+          return {
+            key: key,
+            value: formatMetricValue(this.doc.result[key])
+          };
+        });
       } else {
         return [];
       }

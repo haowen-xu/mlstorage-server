@@ -219,7 +219,7 @@ import EditableText from '../components/EditableText';
 import DictTable from '../components/DictTable';
 import TimeDiff from '../libs/timeDiff';
 import eventBus from '../libs/eventBus';
-import { statusToBootstrapClass, getExtendedStatus } from '../libs/utils';
+import { statusToBootstrapClass, getExtendedStatus, deepIsEqual } from '../libs/utils';
 
 function processConfigDict (c, target = null, prefix = '') {
   const ret = target || {};
@@ -308,7 +308,7 @@ export default {
         let obj = {};
         for (const key in this.config) {
           if (this.config.hasOwnProperty(key) &&
-                this.config[key] !== this.defaultConfig[key]) {
+                !deepIsEqual(this.config[key], this.defaultConfig[key])) {
             obj[key] = this.config[key];
           }
         }
