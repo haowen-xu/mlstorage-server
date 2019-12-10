@@ -16,7 +16,7 @@
       <div v-for="progressItem in progressItems" :key="'progress.' + progressItem.key"
            class="resultItem d-flex justify-content-start">
         <div class="resultKey">{{ progressItem.key }}</div>
-        <div class="resultValue"><metric-value :value="progressItem.value"/></div>
+        <div class="resultValue"><metric-value :metric-key="progressItem.key" :metric-value="progressItem.value"/></div>
       </div>
     </div>
     <div v-if="hasAdvancedProgress" class="results d-flex justify-content-start flex-wrap">
@@ -37,7 +37,7 @@
       <div v-for="metricItem in metricItems" :key="'result.' + metricItem.key"
            class="resultItem d-flex justify-content-start">
         <div class="resultKey">{{ metricItem.key }}</div>
-        <div class="resultValue"><metric-value :value="metricItem.value"/></div>
+        <div class="resultValue"><metric-value :metric-key="metricItem.key" :metric-value="metricItem.value"/></div>
       </div>
     </div>
     <div v-if="filteredTags" class="tags">

@@ -4,13 +4,13 @@
 
 <script>
 export default {
-  props: ['value'],
+  props: ['metricKey', 'metricValue'],
 
   computed: {
     isStatsDict () {
-      if (typeof this.value === 'object' && this.value !== null && !Array.isArray(this.value) &&
-          this.value.mean !== undefined) {
-        const keys = Object.keys(this.value);
+      if (typeof this.metricValue === 'object' && this.metricValue !== null && !Array.isArray(this.metricValue) &&
+          this.metricValue.mean !== undefined) {
+        const keys = Object.keys(this.metricValue);
         if (keys.length === 1 || (keys.length === 2 && (keys.indexOf('std') >= 0 || keys.indexOf('stddev') >= 0))) {
           return true;
         }
@@ -18,11 +18,11 @@ export default {
     },
 
     mean () {
-      return this.isStatsDict ? this.value.mean : this.value;
+      return this.isStatsDict ? this.metricValue.mean : this.metricValue;
     },
 
     std () {
-      return this.isStatsDict ? (this.value.std || this.value.stddev) : undefined;
+      return this.isStatsDict ? (this.metricValue.std || this.metricValue.stddev) : undefined;
     },
 
     hasStd () {
@@ -46,13 +46,17 @@ export default {
       if (typeof val === 'string') {
         return val;
       }
-      if (typeof val === 'number') {
-        let ret = val.toPrecision(6);
-        if (ret.indexOf('.') >= 0) {
-          ret = ret.replace(/0+$/, '');
-          ret = ret.replace(/\.$/, '');
+      if (this.metricKey !== 'step' && this.metricKey !== 'epoch' && this.metricKey !== 'batch' &&
+            this.metricKey !== 'total_steps' && this.metricKey !== 'total_epochs' && this.metricKey !== 'total_batches') {
+        // for counters, we shall not format it as real value
+        if (typeof val === 'number') {
+          let ret = val.toPrecision(6);
+          if (ret.indexOf('.') >= 0) {
+            ret = ret.replace(/0+$/, '');
+            ret = ret.replace(/\.$/, '');
+          }
+          return ret;
         }
-        return ret;
       }
       if (typeof val === 'object' && Object.getPrototypeOf(val).toString === val.toString) {
         return JSON.stringify(val, null, 2);

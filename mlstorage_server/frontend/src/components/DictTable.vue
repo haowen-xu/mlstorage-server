@@ -5,7 +5,7 @@
         :key="item.key"
         :class="item.bold ? ['table-primary', 'boldItem'] : []">
       <th class="fieldName">{{ item.key }}</th>
-      <td class="fieldValue"><metric-value :value="item.value"/></td>
+      <td class="fieldValue"><metric-value :metric-key="item.key" :metric-value="item.value"/></td>
     </tr>
     </tbody>
   </table>
