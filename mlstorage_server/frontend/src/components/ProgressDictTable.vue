@@ -9,6 +9,10 @@
       <th class="fieldName">batch</th>
       <td class="fieldValue">{{ value.batch }}<span v-if="value.total_batches !== undefined">/{{ value.total_batches }}</span></td>
     </tr>
+    <tr v-if="value.step !== undefined">
+      <th class="fieldName">step</th>
+      <td class="fieldValue">{{ value.step }}</td>
+    </tr>
     <tr v-if="eta">
       <th class="fieldName">eta</th>
       <td class="fieldValue">{{ eta }}</td>
