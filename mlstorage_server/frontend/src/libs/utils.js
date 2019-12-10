@@ -40,18 +40,73 @@ export function toString (val) {
       : String(val);
 }
 
-export function formatMetricValue (value) {
-  if (typeof value === 'object' && value !== null && !Array.isArray(value) &&
-      value.mean !== undefined) {
-    const std = value.std || value.stddev;
-    if (std !== undefined) {
-      return `${toString(value.mean)} (±${toString(std)})`;
-    } else {
-      return `${toString(value.mean)}`;
-    }
-  } else {
-    return `${toString(value)}`;
+export function formatDuration (duration, precision = 0) {
+  const isAgo = duration < 0;
+  const precBase = Math.pow(10, precision);
+  duration = Math.round(Math.abs(duration) * precBase) / precBase;
+
+  function format02d (x) {
+    const ret = '00' + x;
+    return ret.substr(ret.length - 2);
   }
+
+  function formatTime (seconds, popLeadingZero) {
+    // first of all, extract the hours and minutes part
+    const residual = [];
+    for (const unit of [3600, 60]) {
+      const thisUnitVal = Math.floor(seconds / unit);
+      residual.push(thisUnitVal);
+      seconds = seconds - thisUnitVal * unit;
+    }
+
+    // format the hours and minutes
+    const segments = [];
+    for (const r of residual) {
+      if (segments.length === 0 && popLeadingZero) {
+        if (r !== 0) {
+          segments.push(String(r));
+        }
+      } else {
+        segments.push(format02d(String(r)));
+      }
+    }
+
+    // break seconds into int and real number part
+    let secondsInt = Math.floor(seconds);
+    let secondsReal = seconds - secondsInt;
+
+    // format the seconds
+    if (segments.length !== 0) {
+      secondsInt = format02d(secondsInt);
+    } else {
+      secondsInt = String(secondsInt);
+    }
+    secondsReal = String(Math.round(secondsReal * precBase) / precBase).replace(/(^0+)|(0+$)/, '');
+    if (secondsReal === '.') {
+      secondsReal = '';
+    }
+    const secondsSuffix = segments.length === 0 ? 's' : '';
+    segments.push(`${secondsInt}${secondsReal}${secondsSuffix}`);
+
+    // now compose the final time str
+    return segments.join(':');
+  }
+
+  let ret;
+  if (duration < 86400) {
+    ret = formatTime(duration, true);
+  } else {
+    const days = Math.ceil(duration / 86400);
+    duration = duration - days * 86400;
+    const timeStr = formatTime(duration, false);
+    ret = `${days}d ${timeStr}`;
+  }
+
+  if (isAgo) {
+    ret += ' ago';
+  }
+
+  return ret;
 }
 
 export function deepIsEqual (a, b) {

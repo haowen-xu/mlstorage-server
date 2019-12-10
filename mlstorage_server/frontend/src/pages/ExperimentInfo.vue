@@ -153,7 +153,38 @@
             </tr>
             <tr v-if="doc.progress">
               <th scope="row" class="fieldName">Progress</th>
-              <td class="fieldValue">
+              <td v-if="hasAdvancedProgress" class="fieldValue">
+                <table class="table table-sm dict-table advancedProgressTable">
+                  <tbody>
+                  <tr></tr>
+                  <tr v-if="doc.progress.train" class="progressEntry">
+                    <th class="fieldName">train</th>
+                    <td class="fieldValue">
+                      <progress-dict-table :value="doc.progress.train" />
+                    </td>
+                  </tr>
+                  <tr v-if="doc.progress.validation" class="progressEntry">
+                    <th class="fieldName">validation</th>
+                    <td class="fieldValue">
+                      <progress-dict-table :value="doc.progress.validation" />
+                    </td>
+                  </tr>
+                  <tr v-if="doc.progress.test" class="progressEntry">
+                    <th class="fieldName">test</th>
+                    <td class="fieldValue">
+                      <progress-dict-table :value="doc.progress.test" />
+                    </td>
+                  </tr>
+                  <tr v-if="doc.progress.predict" class="progressEntry">
+                    <th class="fieldName">predict</th>
+                    <td class="fieldValue">
+                      <progress-dict-table :value="doc.progress.predict" />
+                    </td>
+                  </tr>
+                  </tbody>
+                </table>
+              </td>
+              <td v-else class="fieldValue">
                 <dict-table :items="doc.progress" />
               </td>
             </tr>
@@ -217,6 +248,7 @@ import arrayEquals from 'array-equal';
 import arrayUnique from 'array-unique';
 import EditableText from '../components/EditableText';
 import DictTable from '../components/DictTable';
+import ProgressDictTable from '../components/ProgressDictTable';
 import TimeDiff from '../libs/timeDiff';
 import eventBus from '../libs/eventBus';
 import { statusToBootstrapClass, getExtendedStatus, deepIsEqual } from '../libs/utils';
@@ -237,7 +269,8 @@ function processConfigDict (c, target = null, prefix = '') {
 export default {
   components: {
     EditableText,
-    DictTable
+    DictTable,
+    ProgressDictTable
   },
 
   props: ['doc'],
@@ -329,6 +362,11 @@ export default {
 
     canKill () {
       return this.doc.status === 'RUNNING' && this.doc.control_port && this.doc.control_port.kill;
+    },
+
+    hasAdvancedProgress () {
+      return this.doc.progress && (
+        this.doc.progress.train || this.doc.progress.test || this.doc.progress.validation || this.doc.progress.predict);
     }
   },
 
@@ -480,6 +518,13 @@ export default {
       }
     }
   }
+
+  .advancedProgressTable {
+    .progressEntry:first-child {
+      border-top: none;
+    }
+  }
+
   .word-wrap {
     word-wrap: break-word;
   }

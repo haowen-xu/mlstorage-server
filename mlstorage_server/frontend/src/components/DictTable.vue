@@ -5,7 +5,7 @@
         :key="item.key"
         :class="item.bold ? ['table-primary', 'boldItem'] : []">
       <th class="fieldName">{{ item.key }}</th>
-      <td class="fieldValue">{{ item.value }}</td>
+      <td class="fieldValue"><metric-value :value="item.value"/></td>
     </tr>
     </tbody>
   </table>
@@ -13,9 +13,11 @@
 
 <script>
 import natsort from 'natsort';
-import { formatMetricValue } from '../libs/utils';
+import MetricValue from './MetricValue';
 
 export default {
+  components: {MetricValue},
+
   props: {
     items: {
       default: null
@@ -32,7 +34,7 @@ export default {
       const keys = Object.keys(items);
       keys.sort(natsort({ insensitive: true }));
       return keys.map((k) => (
-        { key: k, value: formatMetricValue(items[k]), bold: boldKeys.includes(k) }
+        { key: k, value: items[k], bold: boldKeys.includes(k) }
       ));
     }
   }

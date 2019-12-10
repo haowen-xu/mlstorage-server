@@ -12,16 +12,32 @@
     <div v-if="doc.description">
       {{ doc.description }}
     </div>
-    <div v-if="progressItems || doc.result" class="results d-flex justify-content-start flex-wrap">
+    <div v-if="progressItems && !hasAdvancedProgress" class="results d-flex justify-content-start flex-wrap">
       <div v-for="progressItem in progressItems" :key="'progress.' + progressItem.key"
            class="resultItem d-flex justify-content-start">
         <div class="resultKey">{{ progressItem.key }}</div>
-        <div class="resultValue">{{ progressItem.value }}</div>
+        <div class="resultValue"><metric-value :value="progressItem.value"/></div>
       </div>
+    </div>
+    <div v-if="hasAdvancedProgress" class="results d-flex justify-content-start flex-wrap">
+      <progress-list-entry v-if="hasAdvancedProgress && doc.progress.train"
+                           :value="doc.progress.train" stage-name="train" class="progressListEntry">
+      </progress-list-entry>
+      <progress-list-entry v-if="hasAdvancedProgress && doc.progress.validation"
+                           :value="doc.progress.validation" stage-name="validation" class="progressListEntry">
+      </progress-list-entry>
+      <progress-list-entry v-if="hasAdvancedProgress && doc.progress.test"
+                           :value="doc.progress.test" stage-name="test" class="progressListEntry">
+      </progress-list-entry>
+      <progress-list-entry v-if="hasAdvancedProgress && doc.progress.predict"
+                           :value="doc.progress.predict" stage-name="predict" class="progressListEntry">
+      </progress-list-entry>
+    </div>
+    <div v-if="doc.result" class="results d-flex justify-content-start flex-wrap">
       <div v-for="metricItem in metricItems" :key="'result.' + metricItem.key"
            class="resultItem d-flex justify-content-start">
         <div class="resultKey">{{ metricItem.key }}</div>
-        <div class="resultValue">{{ metricItem.value }}</div>
+        <div class="resultValue"><metric-value :value="metricItem.value"/></div>
       </div>
     </div>
     <div v-if="filteredTags" class="tags">
@@ -32,9 +48,13 @@
 
 <script>
 import TimeDiff from '../libs/timeDiff';
-import { statusToBootstrapClass, formatMetricValue } from '../libs/utils';
+import { statusToBootstrapClass } from '../libs/utils';
+import MetricValue from './MetricValue';
+import ProgressListEntry from './ProgressListEntry';
 
 export default {
+  components: {ProgressListEntry, MetricValue},
+
   props: {
     doc: {
       type: Object
@@ -118,6 +138,11 @@ export default {
       }
     },
 
+    hasAdvancedProgress () {
+      return this.doc.progress && (
+        this.doc.progress.train || this.doc.progress.test || this.doc.progress.validation || this.doc.progress.predict);
+    },
+
     metricItems () {
       if (this.doc.result) {
         const keys = Object.keys(this.doc.result);
@@ -125,7 +150,7 @@ export default {
         return keys.map(key => {
           return {
             key: key,
-            value: formatMetricValue(this.doc.result[key])
+            value: this.doc.result[key]
           };
         });
       } else {
@@ -161,6 +186,19 @@ export default {
   .tags {
     span { margin-right: 5px; }
     span:last-child { margin-right: 0; }
+  }
+  .progressListEntry {
+    &:after {
+      content: ' | ';
+      color: #ccc;
+      padding-left: 10px;
+      padding-right: 10px;
+    }
+    &:last-child:after {
+      content: '';
+      padding-left: 0;
+      padding-right: 0;
+    }
   }
   .results {
     .resultItem {

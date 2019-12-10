@@ -28,6 +28,8 @@ module.exports = {
     // always require semicolon
     'semi': [2, 'always'],
     // allow throw string
-    'no-throw-literal': 'off'
+    'no-throw-literal': 'off',
+    // allow control characters in regex
+    'no-control-regex': 'off'
   }
 };

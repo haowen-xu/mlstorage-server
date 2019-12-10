@@ -79,7 +79,7 @@ export default {
     },
 
     formattedLogs () {
-      return this.logs;
+      return this.logs.replace(/\x08+|\r\n|\r(?!\n)/g, '\n');
     }
   },
 
