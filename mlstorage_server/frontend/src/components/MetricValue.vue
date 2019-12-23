@@ -47,6 +47,7 @@ export default {
         return val;
       }
       if (this.metricKey !== 'step' && this.metricKey !== 'epoch' && this.metricKey !== 'batch' &&
+            this.metricKey !== 'max_step' && this.metricKey !== 'max_epoch' && this.metricKey !== 'max_batch' &&
             this.metricKey !== 'total_steps' && this.metricKey !== 'total_epochs' && this.metricKey !== 'total_batches') {
         // for counters, we shall not format it as real value
         if (typeof val === 'number') {

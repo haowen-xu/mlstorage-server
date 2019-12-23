@@ -3,11 +3,11 @@
     <tbody>
     <tr v-if="value.epoch !== undefined">
       <th class="fieldName">epoch</th>
-      <td class="fieldValue">{{ value.epoch }}<span v-if="value.total_epochs !== undefined">/{{ value.total_epochs }}</span></td>
+      <td class="fieldValue">{{ value.epoch }}<span v-if="value.max_epoch !== undefined">/{{ value.max_epoch }}</span></td>
     </tr>
     <tr v-if="value.batch !== undefined">
       <th class="fieldName">batch</th>
-      <td class="fieldValue">{{ value.batch }}<span v-if="value.total_batches !== undefined">/{{ value.total_batches }}</span></td>
+      <td class="fieldValue">{{ value.batch }}<span v-if="value.max_batch !== undefined">/{{ value.max_batch }}</span></td>
     </tr>
     <tr v-if="value.step !== undefined">
       <th class="fieldName">step</th>

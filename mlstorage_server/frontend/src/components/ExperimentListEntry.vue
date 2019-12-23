@@ -117,19 +117,19 @@ export default {
     progressItems () {
       if (this.doc.progress) {
         const progress = this.doc.progress;
-        const totalEpochs = progress.total_epochs || progress.max_epoch;
-        const totalBatches = progress.total_batches || progress.max_batch;
-        const totalSteps = progress.total_steps || progress.max_step;
+        const maxEpoch = progress.max_epoch || progress.total_epochs;
+        const maxBatch = progress.max_batch || progress.total_batches;
+        const maxStep = progress.max_step || progress.total_steps;
         const keys = ['stage', 'epoch', 'batch', 'step', 'eta'].filter(s => progress[s] ? s : null);
         return keys.map(key => {
           let value = progress[key];
-          // if `key` is a counter, then append the maximnum value to the counter
-          if (key === 'epoch' && totalEpochs) {
-            value = `${value}/${totalEpochs}`;
-          } else if (key === 'batch' && totalBatches) {
-            value = `${value}/${totalBatches}`;
-          } else if (key === 'step' && totalSteps) {
-            value = `${value}/${totalSteps}`;
+          // if `key` is a counter, then append the maximum value to the counter
+          if (key === 'epoch' && maxEpoch) {
+            value = `${value}/${maxEpoch}`;
+          } else if (key === 'batch' && maxBatch) {
+            value = `${value}/${maxBatch}`;
+          } else if (key === 'step' && maxStep) {
+            value = `${value}/${maxStep}`;
           }
           return {key: key, value: value};
         });
