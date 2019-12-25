@@ -5,11 +5,11 @@
     </div>
     <div v-if="value.epoch !== undefined" class="resultItem d-flex justify-content-start">
       <div class="resultKey">epoch</div>
-      <div class="resultValue">{{ value.epoch }}<span v-if="value.total_epochs !== undefined">/{{ value.total_epochs }}</span></div>
+      <div class="resultValue">{{ value.epoch }}<span v-if="value.max_epoch !== undefined">/{{ value.max_epoch }}</span></div>
     </div>
     <div v-if="value.batch !== undefined" class="resultItem d-flex justify-content-start">
       <div class="resultKey">batch</div>
-      <div class="resultValue">{{ value.batch }}<span v-if="value.total_batches !== undefined">/{{ value.total_batches }}</span></div>
+      <div class="resultValue">{{ value.batch }}<span v-if="value.max_batch !== undefined">/{{ value.max_batch }}</span></div>
     </div>
     <div v-if="eta" class="resultItem d-flex justify-content-start">
       <div class="resultKey">eta</div>
