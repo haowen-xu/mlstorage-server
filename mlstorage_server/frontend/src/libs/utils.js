@@ -40,7 +40,7 @@ export function toString (val) {
       : String(val);
 }
 
-export function formatDuration (duration, precision = 0) {
+export function formatDuration (duration, precision = 0, forceLeadingZero = false) {
   const isAgo = duration < 0;
   const precBase = Math.pow(10, precision);
   duration = Math.round(Math.abs(duration) * precBase) / precBase;
@@ -94,9 +94,9 @@ export function formatDuration (duration, precision = 0) {
 
   let ret;
   if (duration < 86400) {
-    ret = formatTime(duration, true);
+    ret = formatTime(duration, !forceLeadingZero);
   } else {
-    const days = Math.ceil(duration / 86400);
+    const days = Math.floor(duration / 86400);
     duration = duration - days * 86400;
     const timeStr = formatTime(duration, false);
     ret = `${days}d ${timeStr}`;

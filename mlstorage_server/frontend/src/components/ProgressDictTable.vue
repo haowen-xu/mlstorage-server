@@ -50,7 +50,7 @@ export default {
   computed: {
     eta () {
       if (this.value.eta) {
-        return formatDuration(this.value.eta, 3);
+        return formatDuration(this.value.eta, 0, true);
       }
     },
 
